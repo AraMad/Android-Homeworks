@@ -10,21 +10,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ua.arina.task1.Activitys.MainActivity">
 
-    <Button
-        android:text="@string/button_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@color/colorAccent"/>
-
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_below="@+id/button"
         android:layout_centerHorizontal="true">
 
         <TextView
