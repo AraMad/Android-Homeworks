@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">ShppHW</string>
+    <string name="app_name">task1</string>
     <string name="text_file_name">cat_programmer.txt</string>
     <string name="button_text">Show text</string>
-    <string name="text_title">Кот программиста\n</string>
+    <string name="error_message">Sorry. Some error</string>
 </resources>

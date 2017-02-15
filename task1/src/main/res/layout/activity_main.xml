@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ua.arina.task1.MainActivity">
+    tools:context="ua.arina.task1.Activitys.MainActivity">
 
     <Button
         android:text="@string/button_text"
