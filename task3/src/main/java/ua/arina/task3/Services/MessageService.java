@@ -7,20 +7,25 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import ua.arina.task3.Activitys.ChangeMessageActivity;
+import ua.arina.task3.Activitys.SettingsActivity;
 import ua.arina.task3.R;
+import ua.arina.task3.Settings.Constants;
 
 public class MessageService extends Service {
 
     private final String TAG = getClass().getSimpleName();
     private static final boolean DEBUG = true;
 
+    private  String notification_text;
     private static final long MESSAGE_TIME_INTERVAL = 1000 * 60;
+
+    private SharedPreferences settings;
 
     @Override
     public void onCreate() {
@@ -28,6 +33,14 @@ public class MessageService extends Service {
 
         if (DEBUG) {
             Log.d(TAG, "onCreate service");
+        }
+
+        settings = getSharedPreferences(Constants.FILE_PREFERENSES, Context.MODE_PRIVATE);
+
+        if (settings.contains(Constants.TEXT_SETTINGS_KEY)){
+            notification_text = settings.getString(Constants.TEXT_SETTINGS_KEY, null);
+        } else {
+            notification_text = getResources().getString(R.string.notification_text);
         }
     }
 
@@ -53,13 +66,13 @@ public class MessageService extends Service {
             Log.d(TAG, "onStartCommand");
         }
 
-        Intent activityIntent = new Intent(getApplicationContext(), ChangeMessageActivity.class);
+        Intent activityIntent = new Intent(getApplicationContext(), SettingsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, activityIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getResources().getString(R.string.notification_title))
-                .setContentText(getResources().getString(R.string.notification_text))
+                .setContentText(notification_text)
                 .setContentIntent(pendingIntent)
                 .build();
 

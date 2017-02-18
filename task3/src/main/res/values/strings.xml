@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">task3</string>
+
     <string name="start_button_text">Start service</string>
     <string name="stop_button_text">Stop service</string>
+    <string name="change_button_text">Change text</string>
 
     <string name="notification_title">Notification!</string>
     <string name="notification_text">Some text</string>
