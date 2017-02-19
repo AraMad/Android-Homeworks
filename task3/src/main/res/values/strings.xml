@@ -5,6 +5,8 @@
     <string name="stop_button_text">Stop service</string>
     <string name="change_button_text">Change text</string>
 
-    <string name="notification_title">Notification!</string>
-    <string name="notification_text">Some text</string>
+    <string name="notification_title">Important!</string>
+    <string name="notification_text">Drink tea!</string>
+
+    <string name="toast_no_text">Enter text</string>
 </resources>

@@ -10,18 +10,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import ua.arina.task3.R;
 import ua.arina.task3.Services.MessageService;
 import ua.arina.task3.Settings.Constants;
 
-public class SettingsActivity extends AppCompatActivity {
+public class ChangeMessageActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
     private static final boolean DEBUG = true;
 
     private SharedPreferences settings;
-    private Button stopServiceButton;
     private Button changeTextButton;
     private EditText usersText;
 
@@ -34,39 +34,28 @@ public class SettingsActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: second activity");
         }
 
-        settings = getSharedPreferences(Constants.FILE_PREFERENSES, Context.MODE_PRIVATE);
-
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(0);
 
         usersText = (EditText) findViewById(R.id.users_text);
 
+        settings = getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE);
+
         changeTextButton = (Button) findViewById(R.id.change_text_button);
         changeTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (usersText.getText() != null){
+                if (usersText.getText().toString().length() != 0){
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString());
-                    editor.apply();
-                    stopService(new Intent(SettingsActivity.this, MessageService.class));
+                    editor.putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString())
+                            .apply();
+                    stopService(new Intent(ChangeMessageActivity.this, MessageService.class));
                     MessageService.setAlarm(getApplicationContext(), true);
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_no_text,
+                            Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-
-        stopServiceButton = (Button) findViewById(R.id.stop_service_button);
-        stopServiceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MessageService.setAlarm(getApplicationContext(), false);
-                stopService(new Intent(SettingsActivity.this, MessageService.class));
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean(Constants.SERVICE_STATE_KEY, false);
-                editor.apply();
-                stopServiceButton.setEnabled(false);
-                changeTextButton.setEnabled(false);
             }
         });
     }

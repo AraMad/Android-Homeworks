@@ -32,7 +32,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activitys.SettingsActivity"></activity>
+        <activity android:name=".Activitys.ChangeMessageActivity"></activity>
     </application>
 
 </manifest>

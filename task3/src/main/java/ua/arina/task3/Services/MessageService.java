@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import ua.arina.task3.Activitys.SettingsActivity;
+import ua.arina.task3.Activitys.ChangeMessageActivity;
 import ua.arina.task3.R;
 import ua.arina.task3.Settings.Constants;
 
@@ -22,10 +22,10 @@ public class MessageService extends Service {
     private final String TAG = getClass().getSimpleName();
     private static final boolean DEBUG = true;
 
-    private  String notification_text;
-    private static final long MESSAGE_TIME_INTERVAL = 1000 * 60;
+    private static final long MESSAGE_TIME_INTERVAL = 1000 * 1800;
+    private static final int NOTIFICATION_ID = 0;
 
-    private SharedPreferences settings;
+    private String notification_text;
 
     @Override
     public void onCreate() {
@@ -35,7 +35,8 @@ public class MessageService extends Service {
             Log.d(TAG, "onCreate service");
         }
 
-        settings = getSharedPreferences(Constants.FILE_PREFERENSES, Context.MODE_PRIVATE);
+        SharedPreferences settings;
+        settings = getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE);
 
         if (settings.contains(Constants.TEXT_SETTINGS_KEY)){
             notification_text = settings.getString(Constants.TEXT_SETTINGS_KEY, null);
@@ -66,7 +67,7 @@ public class MessageService extends Service {
             Log.d(TAG, "onStartCommand");
         }
 
-        Intent activityIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+        Intent activityIntent = new Intent(getApplicationContext(), ChangeMessageActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, activityIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this)
@@ -78,7 +79,7 @@ public class MessageService extends Service {
 
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notification);
+        notificationManager.notify(NOTIFICATION_ID, notification);
 
         return Service.START_STICKY;
     }
