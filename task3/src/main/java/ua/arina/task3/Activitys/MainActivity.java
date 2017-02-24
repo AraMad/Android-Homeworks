@@ -28,20 +28,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         startServiceButton = (Button) findViewById(R.id.start_service_button);
-        startServiceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MessageService.setAlarm(getApplicationContext(), true);
-            }
-        });
+        startServiceButton.setOnClickListener(v -> MessageService.setAlarm(getApplicationContext(), true));
 
         stopServiceButton = (Button) findViewById(R.id.stop_service_button);
-        stopServiceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MessageService.setAlarm(getApplicationContext(), false);
-                stopService(new Intent(MainActivity.this, MessageService.class));
-            }
+        stopServiceButton.setOnClickListener(v -> {
+            MessageService.setAlarm(getApplicationContext(), false);
+            stopService(new Intent(MainActivity.this, MessageService.class));
         });
     }
 }
