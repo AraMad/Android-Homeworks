@@ -11,21 +11,21 @@
     tools:context="ua.arina.task3.Activitys.ChangeMessageActivity">
 
     <EditText
+        android:id="@+id/users_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:text="@string/notification_text"
         android:ems="10"
-        android:id="@+id/users_text"
         android:layout_marginTop="66dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <Button
+        android:id="@+id/change_text_button"
         android:text="@string/change_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/change_text_button"
         android:layout_marginTop="35dp"
         android:layout_below="@+id/users_text"
         android:layout_centerHorizontal="true" />
