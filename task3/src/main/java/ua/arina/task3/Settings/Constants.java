@@ -7,4 +7,6 @@ package ua.arina.task3.Settings;
 public class Constants {
     public static final String FILE_PREFERENCES = "settings";
     public static final String TEXT_SETTINGS_KEY = "users_text";
+
+    public static final int NOTIFICATION_ID = 0;
 }

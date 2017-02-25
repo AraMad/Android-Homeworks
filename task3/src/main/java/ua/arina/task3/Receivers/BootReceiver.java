@@ -19,6 +19,6 @@ public class BootReceiver extends BroadcastReceiver {
             Log.d(TAG, "onReceive");
         }
 
-        MessageService.setAlarm(context, true);
+        context.startService(new Intent(context, MessageService.class));
     }
 }
