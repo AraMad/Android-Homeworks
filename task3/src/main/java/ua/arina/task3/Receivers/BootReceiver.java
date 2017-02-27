@@ -1,11 +1,11 @@
-package ua.arina.task3.Receivers;
+package ua.arina.task3.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import ua.arina.task3.Services.MessageService;
+import ua.arina.task3.services.MessageService;
 
 public class BootReceiver extends BroadcastReceiver {
 

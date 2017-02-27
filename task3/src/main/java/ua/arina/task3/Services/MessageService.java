@@ -1,4 +1,4 @@
-package ua.arina.task3.Services;
+package ua.arina.task3.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -15,9 +15,9 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ua.arina.task3.Activitys.ChangeMessageActivity;
+import ua.arina.task3.activitys.ChangeMessageActivity;
 import ua.arina.task3.R;
-import ua.arina.task3.Settings.Constants;
+import ua.arina.task3.settings.Constants;
 
 public class MessageService extends Service {
 

@@ -1,4 +1,4 @@
-package ua.arina.task1.Loaders;
+package ua.arina.task1.loaders;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import ua.arina.task1.Settings.Constants;
+import ua.arina.task1.settings.Constants;
 
 /**
  * Created by Arina on 14.02.2017.

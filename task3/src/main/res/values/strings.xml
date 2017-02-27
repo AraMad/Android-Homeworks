@@ -9,4 +9,5 @@
     <string name="notification_text">Drink tea!</string>
 
     <string name="toast_no_text">Enter text</string>
+    <string name="toast_change_text">Message changed</string>
 </resources>

@@ -1,4 +1,4 @@
-package ua.arina.task1.Activitys;
+package ua.arina.task1.activitys;
 
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import ua.arina.task1.Loaders.TextLoader;
-import ua.arina.task1.Settings.Constants;
+import ua.arina.task1.loaders.TextLoader;
+import ua.arina.task1.settings.Constants;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<String> {

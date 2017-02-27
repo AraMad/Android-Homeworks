@@ -1,4 +1,4 @@
-package ua.arina.task2.Activitys;
+package ua.arina.task2.activitys;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

@@ -1,4 +1,4 @@
-package ua.arina.task1.Settings;
+package ua.arina.task1.settings;
 
 /**
  * Created by Arina on 15.02.2017.

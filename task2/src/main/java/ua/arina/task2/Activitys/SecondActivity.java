@@ -1,4 +1,4 @@
-package ua.arina.task2.Activitys;
+package ua.arina.task2.activitys;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

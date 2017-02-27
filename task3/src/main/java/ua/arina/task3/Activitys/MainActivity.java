@@ -1,4 +1,4 @@
-package ua.arina.task3.Activitys;
+package ua.arina.task3.activitys;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import ua.arina.task3.R;
-import ua.arina.task3.Services.MessageService;
+import ua.arina.task3.services.MessageService;
 
 public class MainActivity extends AppCompatActivity {
 

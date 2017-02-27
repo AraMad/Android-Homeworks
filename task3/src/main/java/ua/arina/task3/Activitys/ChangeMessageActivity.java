@@ -1,4 +1,4 @@
-package ua.arina.task3.Activitys;
+package ua.arina.task3.activitys;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import ua.arina.task3.R;
-import ua.arina.task3.Settings.Constants;
+import ua.arina.task3.settings.Constants;
 
 public class ChangeMessageActivity extends AppCompatActivity {
 
@@ -38,6 +38,8 @@ public class ChangeMessageActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString())
                         .apply();
+                Toast.makeText(getApplicationContext(), R.string.toast_change_text,
+                        Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.toast_no_text,
                         Toast.LENGTH_SHORT).show();
