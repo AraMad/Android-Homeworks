@@ -35,8 +35,8 @@ public class ChangeMessageActivity extends AppCompatActivity {
         findViewById(R.id.change_text_button).setOnClickListener(v ->
         {
             if (usersText.getText().toString().length() != 0){
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString())
+                settings.edit()
+                        .putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString())
                         .apply();
                 Toast.makeText(getApplicationContext(), R.string.toast_change_text,
                         Toast.LENGTH_SHORT).show();

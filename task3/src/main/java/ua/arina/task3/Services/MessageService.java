@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -26,7 +25,6 @@ public class MessageService extends Service {
 
     private final long MESSAGE_TIME_INTERVAL = 1000 * 60;
 
-    private SharedPreferences settings;
     private Timer timer;
 
     @Override
@@ -36,8 +34,6 @@ public class MessageService extends Service {
         if (DEBUG) {
             Log.d(TAG, "onCreate service");
         }
-
-        settings = getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -82,8 +78,8 @@ public class MessageService extends Service {
             Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getResources().getString(R.string.notification_title))
-                    .setContentText(
-                            settings.getString(Constants.TEXT_SETTINGS_KEY,
+                    .setContentText(getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE)
+                            .getString(Constants.TEXT_SETTINGS_KEY,
                                     getResources().getString(R.string.notification_text)))
                     .setContentIntent(
                             PendingIntent.getActivity(getApplicationContext(),0, activityIntent,0))
