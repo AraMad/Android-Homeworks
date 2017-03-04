@@ -5,12 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import ua.arina.task4.R;
+import ua.arina.task4.interfaces.ClickListener;
 import ua.arina.task4.models.ItemModel;
 
 /**
@@ -22,41 +23,33 @@ public class ItemsAdapter extends
 
     private List<ItemModel> items;
     private Context context;
+    private ClickListener clicklistener = null;
 
-    // Pass in the contact array into the constructor
-    public ItemsAdapter(Context context, List<ItemModel> contacts) {
-        items = contacts;
+    public ItemsAdapter(Context context, List<ItemModel> photoItems) {
+        items = photoItems;
         this.context = context;
     }
 
-    // Easy access to the context object in the recyclerview
     private Context getContext() {
         return context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        // Inflate the custom layout
-        View itemView = inflater.inflate(R.layout.relative_layout_item, parent, false);
-
-        // Return a new holder instance
-        return new ViewHolder(itemView);
+        return new ViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.relative_layout_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
         ItemModel item = items.get(position);
-
-        // Set item views based on your views and data model
         TextView textView = holder.nameTextView;
         textView.setText(item.getName());
-        Button button = holder.messageButton;
-        button.setText("Show");
 
+    }
+
+    public void setClickListener(ClickListener clicklistener) {
+        this.clicklistener = clicklistener;
     }
 
     @Override
@@ -64,21 +57,21 @@ public class ItemsAdapter extends
         return items.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        // Your holder should contain a member variable
-        // for any view that will be set as you render a row
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
         public TextView nameTextView;
-        public Button messageButton;
 
-        // We also create a constructor that accepts the entire item row
-        // and does the view lookups to find each subview
         public ViewHolder(View itemView) {
-            // Stores the itemView in a public final member variable that can be used
-            // to access the context from any ViewHolder instance.
             super(itemView);
-
+            itemView.setOnClickListener(this);
             nameTextView = (TextView) itemView.findViewById(R.id.photo_name);
-            messageButton = (Button) itemView.findViewById(R.id.show_button);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (clicklistener != null) {
+                clicklistener.itemClicked(v, getAdapterPosition());
+            }
         }
     }
 }

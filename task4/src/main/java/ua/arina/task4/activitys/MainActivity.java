@@ -15,9 +15,11 @@ import android.support.v7.widget.SnapHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,9 +27,10 @@ import java.util.Locale;
 
 import ua.arina.task4.R;
 import ua.arina.task4.adapters.ItemsAdapter;
+import ua.arina.task4.interfaces.ClickListener;
 import ua.arina.task4.models.ItemModel;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ClickListener{
 
     private final String TAG = getClass().getSimpleName();
 
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private final int RESULT_CODE = 0;
 
     ArrayList<ItemModel> items;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,50 +67,27 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
-        items = ItemModel.createContactsList(20);
-        ItemsAdapter adapter = new ItemsAdapter(getApplicationContext(), items);
+        items = new ArrayList<>();
 
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
-                LinearLayoutManager.HORIZONTAL, false));
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(recyclerView);
+        for (int i = 0; i < createAppDirectory().listFiles().length; i++){
+            items.add(new ItemModel(createAppDirectory().listFiles()[i].getName()));
+        }
 
-
+        settingRecycleView();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_CODE) {
-            if (resultCode == RESULT_OK){
-                if (data != null){
-                    imageView.setImageBitmap((Bitmap) data.getExtras().get("data"));
-                }
-                imageView.setImageURI(Uri.fromFile(photo));
-                addPictureIntoGallery();
-            }
+        if (requestCode == RESULT_CODE && resultCode == RESULT_OK) {
+            imageView.setImageURI(Uri.fromFile(photo));
+            addPictureIntoGallery();
+            items.add(new ItemModel(photo.getName()));
+            recyclerView.getAdapter().notifyDataSetChanged();
         }
     }
-
-    /*@Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putString("path_to_image", photo.getAbsolutePath());
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        if (savedInstanceState != null){
-            imageView.setImageBitmap(BitmapFactory.decodeFile(savedInstanceState.getString("path_to_image"),
-                    new BitmapFactory.Options()));
-        }
-    }*/
 
     private File createImageFile() throws IOException {
 
@@ -133,5 +114,20 @@ public class MainActivity extends AppCompatActivity {
     private void addPictureIntoGallery() {
         this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
                 .setData(Uri.fromFile(photo)));
+    }
+
+    private void settingRecycleView(){
+        ItemsAdapter itemsAdapter = new ItemsAdapter(getApplicationContext(), items);
+        itemsAdapter.setClickListener(this);
+        recyclerView.setAdapter(itemsAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        new LinearSnapHelper().attachToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void itemClicked(View view, int position) {
+        imageView.setImageURI(Uri.fromFile(new File(createAppDirectory().getAbsolutePath() + "/" + items.get(position).getName())));
+        Log.d(TAG, createAppDirectory().getAbsolutePath() + items.get(position).getName());
     }
 }
