@@ -1,12 +1,10 @@
 package ua.arina.task4.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,16 +20,10 @@ public class ItemsAdapter extends
         RecyclerView.Adapter<ItemsAdapter.ViewHolder> {
 
     private List<ItemModel> items;
-    private Context context;
     private ClickListener clicklistener = null;
 
-    public ItemsAdapter(Context context, List<ItemModel> photoItems) {
+    public ItemsAdapter(List<ItemModel> photoItems) {
         items = photoItems;
-        this.context = context;
-    }
-
-    private Context getContext() {
-        return context;
     }
 
     @Override
@@ -42,10 +34,7 @@ public class ItemsAdapter extends
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ItemModel item = items.get(position);
-        TextView textView = holder.nameTextView;
-        textView.setText(item.getName());
-
+        holder.nameTextView.setText(items.get(position).getName());
     }
 
     public void setClickListener(ClickListener clicklistener) {
