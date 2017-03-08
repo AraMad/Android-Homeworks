@@ -16,7 +16,6 @@ public class ChangeMessageActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
     private static final boolean DEBUG = true;
 
-    private SharedPreferences settings;
     private EditText usersText;
 
     @Override
@@ -30,12 +29,10 @@ public class ChangeMessageActivity extends AppCompatActivity {
 
         usersText = (EditText) findViewById(R.id.users_text);
 
-        settings = getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE);
-
         findViewById(R.id.change_text_button).setOnClickListener(v ->
         {
             if (usersText.getText().toString().length() != 0){
-                settings.edit()
+                getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
                         .putString(Constants.TEXT_SETTINGS_KEY, usersText.getText().toString())
                         .apply();
                 Toast.makeText(getApplicationContext(), R.string.toast_change_text,
@@ -46,4 +43,6 @@ public class ChangeMessageActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

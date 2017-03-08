@@ -34,6 +34,10 @@ public class MessageService extends Service {
         if (DEBUG) {
             Log.d(TAG, "onCreate service");
         }
+
+        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
+                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
+                .apply();
     }
 
     @Override
@@ -47,8 +51,21 @@ public class MessageService extends Service {
             timer.cancel();
         }
 
+        long start_time = MESSAGE_TIME_INTERVAL;
+        long time_difference = System.currentTimeMillis() -
+                getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE)
+                .getLong(Constants.TIME_SETTINGS_KEY, MESSAGE_TIME_INTERVAL);
+
+        if (time_difference < MESSAGE_TIME_INTERVAL){
+            start_time = MESSAGE_TIME_INTERVAL - time_difference;
+        }
+
         timer = new Timer();
-        timer.schedule(new OwnTimerTask(), MESSAGE_TIME_INTERVAL, MESSAGE_TIME_INTERVAL);
+        timer.schedule(new OwnTimerTask(), start_time, MESSAGE_TIME_INTERVAL);
+
+        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
+                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
+                .apply();
 
         return Service.START_STICKY;
     }

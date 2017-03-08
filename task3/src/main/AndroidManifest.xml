@@ -18,11 +18,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activitys.ChangeMessageActivity"/>
+        <activity android:name=".activitys.ChangeMessageActivity" />
 
         <service
             android:name=".services.MessageService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <receiver
             android:name=".receivers.BootReceiver"

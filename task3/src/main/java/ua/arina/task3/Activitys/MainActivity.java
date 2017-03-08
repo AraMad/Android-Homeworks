@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: MainActivity");
         }
 
-         findViewById(R.id.start_service_button)
+        findViewById(R.id.start_service_button)
                 .setOnClickListener(v -> startService(new Intent(this, MessageService.class)));
 
         findViewById(R.id.stop_service_button)
