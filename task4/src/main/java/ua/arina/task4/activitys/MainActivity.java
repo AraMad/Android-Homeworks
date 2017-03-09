@@ -1,6 +1,8 @@
 package ua.arina.task4.activitys;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -77,20 +79,47 @@ public class MainActivity extends AppCompatActivity implements ClickListener{
             items.add(new ItemModel(photo.getName()));
             recyclerView.getAdapter().notifyDataSetChanged();
 
-            //TODO: other thread
-            imageView.setImageURI(Uri.fromFile(photo));
+            setImage(photo.getPath());
         }
     }
 
     //TODO: saveInstanceState
 
-    private File createImageFile() throws IOException {
-        return File.createTempFile(
-                FILE_NAME_PREFIX + new SimpleDateFormat(NAME_TEMPLATE, Locale.US)
-                        .format(new Date()),
-                FILE_EXTENSION,
-                takeDirectoryForPhoto()
-        );
+    @Override
+    public void itemClicked(View view, int position) {
+
+        setImage(new File(takeDirectoryForPhoto().getAbsolutePath())
+                + "/"
+                + items.get(position).getName());
+    }
+
+    private void setImage(String path){
+        new Thread(() -> {
+            final Bitmap bitmap = BitmapFactory.decodeFile(path);
+                imageView.post(() -> imageView.setImageBitmap(bitmap));
+        }).start();
+    }
+
+    private void initItems(){
+        for (int i = 0; i < takeDirectoryForPhoto().listFiles().length; i++){
+            items.add(new ItemModel(takeDirectoryForPhoto().listFiles()[i].getName()));
+        }
+    }
+
+    private void settingRecycleView(){
+
+        ItemsAdapter itemsAdapter = new ItemsAdapter(items);
+        itemsAdapter.setClickListener(this);
+
+        recyclerView.setAdapter(itemsAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+        new LinearSnapHelper().attachToRecyclerView(recyclerView);
+    }
+
+    private void addPictureIntoGallery() {
+        this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                .setData(Uri.fromFile(photo)));
     }
 
     private File takeDirectoryForPhoto(){
@@ -105,34 +134,12 @@ public class MainActivity extends AppCompatActivity implements ClickListener{
         return directory;
     }
 
-    private void addPictureIntoGallery() {
-        this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-                .setData(Uri.fromFile(photo)));
-    }
-
-    private void settingRecycleView(){
-
-        ItemsAdapter itemsAdapter = new ItemsAdapter(items);
-        itemsAdapter.setClickListener(this);
-
-        recyclerView.setAdapter(itemsAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
-                LinearLayoutManager.HORIZONTAL, false));
-        new LinearSnapHelper().attachToRecyclerView(recyclerView);
-    }
-
-    private void initItems(){
-        for (int i = 0; i < takeDirectoryForPhoto().listFiles().length; i++){
-            items.add(new ItemModel(takeDirectoryForPhoto().listFiles()[i].getName()));
-        }
-    }
-
-    @Override
-    public void itemClicked(View view, int position) {
-
-        //TODO: other thread
-        imageView.setImageURI(Uri.fromFile(new File(takeDirectoryForPhoto().getAbsolutePath()
-                + "/"
-                + items.get(position).getName())));
+    private File createImageFile() throws IOException {
+        return File.createTempFile(
+                FILE_NAME_PREFIX + new SimpleDateFormat(NAME_TEMPLATE, Locale.US)
+                        .format(new Date()),
+                FILE_EXTENSION,
+                takeDirectoryForPhoto()
+        );
     }
 }

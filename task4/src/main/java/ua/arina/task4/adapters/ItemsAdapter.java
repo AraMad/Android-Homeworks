@@ -29,7 +29,7 @@ public class ItemsAdapter extends
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.relative_layout_item, parent, false));
+                .inflate(R.layout.recycler_layout_item, parent, false));
     }
 
     @Override
