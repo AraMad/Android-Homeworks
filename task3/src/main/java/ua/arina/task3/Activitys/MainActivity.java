@@ -7,18 +7,18 @@ import android.util.Log;
 
 import ua.arina.task3.R;
 import ua.arina.task3.services.MessageService;
+import ua.arina.task3.settings.Constants;
 
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
-    private static final boolean DEBUG = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onCreate: MainActivity");
         }
 

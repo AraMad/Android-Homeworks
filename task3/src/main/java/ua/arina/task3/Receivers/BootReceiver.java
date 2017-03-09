@@ -6,16 +6,16 @@ import android.content.Intent;
 import android.util.Log;
 
 import ua.arina.task3.services.MessageService;
+import ua.arina.task3.settings.Constants;
 
 public class BootReceiver extends BroadcastReceiver {
 
     private final String TAG = getClass().getSimpleName();
-    private static final boolean DEBUG = true;
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onReceive");
         }
 

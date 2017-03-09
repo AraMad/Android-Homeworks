@@ -14,7 +14,6 @@ import ua.arina.task3.settings.Constants;
 public class ChangeMessageActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
-    private static final boolean DEBUG = true;
 
     private EditText usersText;
 
@@ -23,7 +22,7 @@ public class ChangeMessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_message);
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onCreate: second activity");
         }
 

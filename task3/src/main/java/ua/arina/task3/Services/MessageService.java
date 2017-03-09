@@ -6,8 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.Context;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -18,10 +16,9 @@ import ua.arina.task3.activitys.ChangeMessageActivity;
 import ua.arina.task3.R;
 import ua.arina.task3.settings.Constants;
 
-public class MessageService extends Service {
+public class MessageService extends BasicService {
 
     private final String TAG = getClass().getSimpleName();
-    private static final boolean DEBUG = true;
 
     private final long MESSAGE_TIME_INTERVAL = 1000 * 60;
 
@@ -31,19 +28,17 @@ public class MessageService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onCreate service");
         }
 
-        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
-                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
-                .apply();
+        addCurrentTimeToPreferences();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onStartCommand");
         }
 
@@ -51,21 +46,17 @@ public class MessageService extends Service {
             timer.cancel();
         }
 
-        long start_time = MESSAGE_TIME_INTERVAL;
         long time_difference = System.currentTimeMillis() -
                 getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE)
                 .getLong(Constants.TIME_SETTINGS_KEY, MESSAGE_TIME_INTERVAL);
 
-        if (time_difference < MESSAGE_TIME_INTERVAL){
-            start_time = MESSAGE_TIME_INTERVAL - time_difference;
-        }
+        long start_time = (time_difference < MESSAGE_TIME_INTERVAL)?
+                MESSAGE_TIME_INTERVAL - time_difference: MESSAGE_TIME_INTERVAL;
 
         timer = new Timer();
         timer.schedule(new OwnTimerTask(), start_time, MESSAGE_TIME_INTERVAL);
 
-        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
-                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
-                .apply();
+        addCurrentTimeToPreferences();
 
         return Service.START_STICKY;
     }
@@ -74,15 +65,15 @@ public class MessageService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        if (DEBUG) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "onDestroy service");
         }
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    private void addCurrentTimeToPreferences(){
+        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
+                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
+                .apply();
     }
 
     private class OwnTimerTask extends TimerTask{
@@ -99,7 +90,7 @@ public class MessageService extends Service {
                             .getString(Constants.TEXT_SETTINGS_KEY,
                                     getResources().getString(R.string.notification_text)))
                     .setContentIntent(
-                            PendingIntent.getActivity(getApplicationContext(),0, activityIntent,0))
+                            PendingIntent.getActivity(getApplicationContext(), 0, activityIntent,0))
                     .setAutoCancel(true)
                     .build();
 

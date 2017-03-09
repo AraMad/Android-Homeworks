@@ -5,6 +5,8 @@ package ua.arina.task3.settings;
  */
 
 public class Constants {
+    public static final boolean DEBUG = true;
+
     public static final String FILE_PREFERENCES = "settings";
     public static final String TEXT_SETTINGS_KEY = "users_text";
     public static final String TIME_SETTINGS_KEY = "last_start_time";

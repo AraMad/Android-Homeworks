@@ -15,7 +15,7 @@
         android:text="@string/start_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="127dp"
+        android:layout_marginTop="@dimen/button_margin"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 

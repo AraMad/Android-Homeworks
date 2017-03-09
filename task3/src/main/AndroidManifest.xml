@@ -10,7 +10,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activitys.MainActivity">
+        <activity android:name=".activitys.MainActivity"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,11 +19,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activitys.ChangeMessageActivity" />
+        <activity android:name=".activitys.ChangeMessageActivity"
+            android:excludeFromRecents="true"/>
 
         <service
             android:name=".services.MessageService"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":OtherProcess"/>
 
         <receiver
             android:name=".receivers.BootReceiver"
