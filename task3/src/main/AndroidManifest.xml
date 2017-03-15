@@ -19,13 +19,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activitys.ChangeMessageActivity"
-            android:excludeFromRecents="true"/>
-
-        <service
-            android:name=".services.MessageService"
-            android:exported="false"
-            android:process=":OtherProcess"/>
+        <service android:name=".services.MessageService"
+            android:exported="false" />
 
         <receiver
             android:name=".receivers.BootReceiver"

@@ -12,7 +12,7 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ua.arina.task3.activitys.ChangeMessageActivity;
+import ua.arina.task3.activitys.MainActivity;
 import ua.arina.task3.R;
 import ua.arina.task3.settings.Constants;
 
@@ -68,6 +68,10 @@ public class MessageService extends BasicService {
         if (Constants.DEBUG) {
             Log.d(TAG, "onDestroy service");
         }
+
+        if (timer != null){
+            timer.cancel();
+        }
     }
 
     private void addCurrentTimeToPreferences(){
@@ -81,7 +85,7 @@ public class MessageService extends BasicService {
         @Override
         public void run() {
 
-            Intent activityIntent = new Intent(getApplicationContext(), ChangeMessageActivity.class);
+            Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 
             Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)

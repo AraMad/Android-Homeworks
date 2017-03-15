@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">task3</string>
 
-    <string name="start_button_text">Start service</string>
-    <string name="stop_button_text">Stop service</string>
     <string name="change_button_text">Change text</string>
-
-    <string name="notification_title">Important!</string>
-    <string name="notification_text">Drink tea!</string>
 
     <string name="toast_no_text">Enter text</string>
     <string name="toast_change_text">Message changed</string>
+
+    <string name="service_state_text">Service</string>
+
+    <string name="notification_title">Important!</string>
+    <string name="notification_text">Drink tea!</string>
 </resources>
