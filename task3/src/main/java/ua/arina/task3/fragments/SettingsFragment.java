@@ -60,8 +60,11 @@ public class SettingsFragment  extends PreferenceFragment
             }
 
         } else if(key.equals(Constants.MESSAGE_TIME_INTERVAL_KEY)){
-            getActivity().stopService(new Intent(getActivity(), MessageService.class));
-            getActivity().startService(new Intent(getActivity(), MessageService.class));
+            if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getBoolean(Constants.SERVICE_STATE_KEY, true)){
+                getActivity().stopService(new Intent(getActivity(), MessageService.class));
+                getActivity().startService(new Intent(getActivity(), MessageService.class));
+            }
         }
     }
 }
