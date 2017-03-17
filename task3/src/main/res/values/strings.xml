@@ -1,12 +1,37 @@
 <resources>
     <string name="app_name">task3</string>
 
-    <string name="change_button_text">Change text</string>
+    <string name="switch_title">Service</string>
+    <string name="switch_text_on">On</string>
+    <string name="switch_text_off">Off</string>
 
-    <string name="toast_no_text">Enter text</string>
-    <string name="toast_change_text">Message changed</string>
+    <string name="edit_text_title">Notification message</string>
+    <string name="edit_text_summary">Set notification message</string>
+    <string name="edit_text_dialog_title">Input new message</string>
 
-    <string name="service_state_text">Service</string>
+    <string name="list_title">Time interval</string>
+    <string name="list_summary">Set notification time interval</string>
+    <string name="list_dialog_title">Choose time interval</string>
+
+    <string-array name="time_intervals_names">
+        <item>1 minute</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>15 minutes</item>
+        <item>20 minutes</item>
+        <item>25 minutes</item>
+        <item>30 minutes</item>
+    </string-array>
+
+    <string-array name="time_intervals_values">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>25</item>
+        <item>30</item>
+    </string-array>
 
     <string name="notification_title">Important!</string>
     <string name="notification_text">Drink tea!</string>

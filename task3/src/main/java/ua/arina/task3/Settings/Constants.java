@@ -7,11 +7,9 @@ package ua.arina.task3.settings;
 public class Constants {
     public static final boolean DEBUG = true;
 
-    public static final String FILE_PREFERENCES = "settings";
-
-    public static final String TEXT_SETTINGS_KEY = "users_text";
-    public static final String TIME_SETTINGS_KEY = "last_start_time";
-    public static final String SWITCH_STATE_KEY = "service_state";
+    public static final String SERVICE_STATE_KEY = "service_state";
+    public static final String MESSAGE_TEXT_KEY = "message_text";
+    public static final String MESSAGE_TIME_INTERVAL_KEY = "message_time_interval";
 
     public static final int NOTIFICATION_ID = 0;
 }

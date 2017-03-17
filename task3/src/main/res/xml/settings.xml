@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="service_state"
+        android:title="@string/switch_title"
+        android:switchTextOn="@string/switch_text_on"
+        android:switchTextOff="@string/switch_text_off"
+        android:defaultValue="false"
+        />
+
+    <EditTextPreference
+        android:key="message_text"
+        android:title="@string/edit_text_title"
+        android:summary="@string/edit_text_summary"
+        android:dialogTitle="@string/edit_text_dialog_title"
+        android:defaultValue="@string/notification_text"
+        />
+
+    <ListPreference
+        android:key="message_time_interval"
+        android:title="@string/list_title"
+        android:summary="@string/list_summary"
+        android:dialogTitle="@string/list_dialog_title"
+        android:entries="@array/time_intervals_names"
+        android:entryValues="@array/time_intervals_values"
+        android:defaultValue="1"
+        />
+
+</PreferenceScreen>

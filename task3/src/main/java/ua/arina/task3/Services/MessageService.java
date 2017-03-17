@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -20,8 +20,6 @@ public class MessageService extends BasicService {
 
     private final String TAG = getClass().getSimpleName();
 
-    private final long MESSAGE_TIME_INTERVAL = 1000 * 60;
-
     private Timer timer;
 
     @Override
@@ -32,7 +30,6 @@ public class MessageService extends BasicService {
             Log.d(TAG, "onCreate service");
         }
 
-        addCurrentTimeToPreferences();
     }
 
     @Override
@@ -46,17 +43,11 @@ public class MessageService extends BasicService {
             timer.cancel();
         }
 
-        long time_difference = System.currentTimeMillis() -
-                getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE)
-                .getLong(Constants.TIME_SETTINGS_KEY, MESSAGE_TIME_INTERVAL);
-
-        long start_time = (time_difference < MESSAGE_TIME_INTERVAL)?
-                MESSAGE_TIME_INTERVAL - time_difference: MESSAGE_TIME_INTERVAL;
+        long startTime = Long.parseLong(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .getString(Constants.MESSAGE_TIME_INTERVAL_KEY, "")) * 60 * 1000;
 
         timer = new Timer();
-        timer.schedule(new OwnTimerTask(), start_time, MESSAGE_TIME_INTERVAL);
-
-        addCurrentTimeToPreferences();
+        timer.schedule(new OwnTimerTask(), startTime, startTime);
 
         return Service.START_STICKY;
     }
@@ -74,12 +65,6 @@ public class MessageService extends BasicService {
         }
     }
 
-    private void addCurrentTimeToPreferences(){
-        getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE).edit()
-                .putLong(Constants.TIME_SETTINGS_KEY, System.currentTimeMillis())
-                .apply();
-    }
-
     private class OwnTimerTask extends TimerTask{
 
         @Override
@@ -90,9 +75,8 @@ public class MessageService extends BasicService {
             Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getResources().getString(R.string.notification_title))
-                    .setContentText(getSharedPreferences(Constants.FILE_PREFERENCES, Context.MODE_PRIVATE)
-                            .getString(Constants.TEXT_SETTINGS_KEY,
-                                    getResources().getString(R.string.notification_text)))
+                    .setContentText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                            .getString(Constants.MESSAGE_TEXT_KEY, ""))
                     .setContentIntent(
                             PendingIntent.getActivity(getApplicationContext(), 0, activityIntent,0))
                     .setAutoCancel(true)

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="ua.arina.task3">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -20,7 +21,8 @@
         </activity>
 
         <service android:name=".services.MessageService"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":ownProcess"/>
 
         <receiver
             android:name=".receivers.BootReceiver"
