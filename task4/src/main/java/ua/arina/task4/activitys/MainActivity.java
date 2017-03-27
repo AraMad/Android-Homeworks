@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -14,9 +15,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.io.File;
@@ -58,9 +63,17 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
 
     private String currentItemPath;
 
+    LinearLayout recyclerViewContainer;
+    BottomSheetBehavior bottomSheetBehavior;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -90,6 +103,20 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
                     .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo)), RESULT_CODE);
 
         });
+
+        //---------------------------
+
+        recyclerViewContainer = (LinearLayout) findViewById(R.id.container);
+        bottomSheetBehavior = BottomSheetBehavior.from(recyclerViewContainer);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        bottomSheetBehavior.setPeekHeight(recyclerViewContainer.getHeight());
+        bottomSheetBehavior.setHideable(true);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        return super.onTouchEvent(event);
     }
 
     @Override
@@ -107,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
                     + items.get(0).getName());
         }
     }
+
 
     @Override
     protected void onPause() {
@@ -135,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
                     + "/"
                     + items.get(position).getName());
         }
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     @Override
