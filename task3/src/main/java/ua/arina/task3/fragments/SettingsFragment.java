@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import ua.arina.task3.R;
 import ua.arina.task3.services.MessageService;
@@ -46,10 +45,6 @@ public class SettingsFragment  extends PreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-        if (Constants.DEBUG) {
-            Log.d(TAG, "Fragment: onSharedPreferenceChanged");
-        }
 
         if(key.equals(Constants.SERVICE_STATE_KEY)){
 

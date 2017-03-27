@@ -124,8 +124,8 @@ public class MessageService extends BasicService {
                     .setContentTitle(getResources().getString(R.string.notification_title))
                     .setContentText(getDefaultSharedPreferences(getApplicationContext())
                             .getString(Constants.MESSAGE_TEXT_KEY, ""))
-                    .setContentIntent(
-                            PendingIntent.getActivity(getApplicationContext(), 0, activityIntent,0))
+                    .setContentIntent(PendingIntent
+                            .getActivity(getApplicationContext(), 0, activityIntent,0))
                     .setAutoCancel(true)
                     .build();
 

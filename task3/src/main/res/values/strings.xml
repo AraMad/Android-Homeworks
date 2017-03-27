@@ -33,6 +33,7 @@
         <item>30</item>
     </string-array>
 
+    <!-- Message title and default text -->
     <string name="notification_title">Important!</string>
     <string name="notification_text">Drink tea!</string>
 </resources>
