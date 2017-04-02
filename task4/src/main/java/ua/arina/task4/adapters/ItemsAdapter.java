@@ -1,13 +1,14 @@
 package ua.arina.task4.adapters;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +26,12 @@ public class ItemsAdapter extends
         RecyclerView.Adapter<ItemsAdapter.ViewHolder> {
 
     private List<ItemModel> items;
+    private Context context;
     private ClickListener clicklistener = null;
 
-    public ItemsAdapter(ArrayList<ItemModel> photoItems) {
-        items = photoItems;
+    public ItemsAdapter(ArrayList<ItemModel> photoItems, Context context) {
+        this.items = photoItems;
+        this.context = context;
     }
 
     @Override
@@ -46,6 +49,8 @@ public class ItemsAdapter extends
                 holder.progressBar.setVisibility(View.VISIBLE);
             } else {
                 holder.iconImageView.setImageBitmap(preview);
+                holder.iconImageView.startAnimation(AnimationUtils
+                        .loadAnimation(context, R.anim.recycler_view_animation));
                 holder.progressBar.setVisibility(View.INVISIBLE);
             }
         } catch (IndexOutOfBoundsException e) {

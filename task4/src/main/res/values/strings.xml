@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">task4</string>
+    <string name="app_name">MyGallery</string>
 
     <string name="button_text">Take photo</string>
+    <string name="permission_button_text">Ok</string>
+    <string name="not_allow_permission_text">App will not work without this permission</string>
 
     <string name="content_description">Photos</string>
 </resources>

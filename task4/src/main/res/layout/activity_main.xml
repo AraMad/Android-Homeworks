@@ -16,9 +16,9 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/button"
 
+        android:src="@mipmap/ic_take_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_take_photo"
 
         app:layout_anchor="@+id/container"
         app:layout_anchorGravity="top|end" />

@@ -53,6 +53,9 @@ public class ImageDownloadTask implements Callable<DownloadItemModel>{
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 
         Matrix matrix = new Matrix();
+        if ((bitmap.getHeight() > bitmap.getWidth()) && index == IMAGE_VIEW_INDEX){
+            rotateDegree = ROTATE_DEGREES;
+        }
         matrix.postRotate(rotateDegree);
 
         return new DownloadItemModel(

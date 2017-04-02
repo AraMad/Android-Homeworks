@@ -2,11 +2,12 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:id="@+id/container"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="110dp"
-    android:background="@android:color/darker_gray"
+    android:background="@color/colorAccent"
 
     app:behavior_hideable="true"
     app:behavior_peekHeight="80dp"
@@ -19,8 +20,8 @@
         android:layout_height="110dp"
         android:layout_marginBottom="49dp"
 
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 

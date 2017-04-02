@@ -1,15 +1,21 @@
 package ua.arina.task4.activitys;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
@@ -19,7 +25,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -29,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -46,25 +53,27 @@ import ua.arina.task4.settings.Constants;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static ua.arina.task4.BuildConfig.DEBUG;
 
-public class MainActivity extends AppCompatActivity implements ClickListener {
+public class MainActivity extends AppCompatActivity implements ClickListener, View.OnTouchListener {
 
     private final String TAG = getClass().getSimpleName();
 
     private final int RESULT_CODE = 0;
+    private final int PERMISSION_REQUEST_CODE = 1;
 
     private ImageView imageView;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private FloatingActionButton takePhotoButton;
+    private LinearLayout recyclerViewContainer;
+    private BottomSheetBehavior bottomSheetBehavior;
 
     private File photo;
-    private ArrayList<ItemModel> items;
+    private File directory;
+    private ArrayList<ItemModel> photos;
     private DownloadComplete downloadComplete;
     private CustomerThread customerThread;
-
     private String currentItemPath;
-
-    LinearLayout recyclerViewContainer;
-    BottomSheetBehavior bottomSheetBehavior;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,48 +84,75 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
+        findViewById(R.id.main_layout).setOnTouchListener(this);
+        findViews();
+        setPolicy();
+        requestPermision();
+        initDownloadThread();
+        initArrayPhotosAndDirectory();
+        settingViews();
+    }
 
+    private void setPolicy(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
         }
+    }
 
-        imageView = (ImageView) findViewById(R.id.imageView);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar_2);
-        progressBar.setVisibility(View.INVISIBLE);
-
+    private void initDownloadThread(){
         downloadComplete = new DownloadComplete(Executors
                 .newScheduledThreadPool(5));
         customerThread =  new CustomerThread(downloadComplete);
         customerThread.start();
+    }
 
-        items = new ArrayList<>();
-        initItems();
-
+    private void findViews(){
+        imageView = (ImageView) findViewById(R.id.imageView);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar_2);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        settingRecycleView();
-
-        findViewById(R.id.button).setOnClickListener(v ->
-        {
-            photo = takeImageFile();
-            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo)), RESULT_CODE);
-
-        });
-
-        //---------------------------
-
+        takePhotoButton = (FloatingActionButton) findViewById(R.id.button);
         recyclerViewContainer = (LinearLayout) findViewById(R.id.container);
-        bottomSheetBehavior = BottomSheetBehavior.from(recyclerViewContainer);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        bottomSheetBehavior.setPeekHeight(recyclerViewContainer.getHeight());
-        bottomSheetBehavior.setHideable(true);
+    }
+
+    private void requestPermision(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                ContextCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat
+                    .requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            PERMISSION_REQUEST_CODE);
+        }
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE
+                && grantResults.length == 1
+                && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+
+            final String message = getResources().getString(R.string.not_allow_permission_text);
+            Snackbar.make(imageView, message, Snackbar.LENGTH_LONG)
+                    .setAction( getResources().getString(R.string.permission_button_text), null)
+                    .setDuration(10000)
+                    .show();
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
+        if (timer != null){
+            timer.cancel();
+        }
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        return super.onTouchEvent(event);
+        timer = new Timer();
+        timer.schedule(new OwnTimerTask(), Constants.DELAY);
+
+        return false;
     }
 
     @Override
@@ -128,13 +164,12 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
 
         if (currentItemPath != null){
             loadImage(currentItemPath);
-        } else if(items.size() != 0){
-            loadImage(takeDirectoryForPhoto().getAbsolutePath()
+        } else if(photos.size() != 0){
+            loadImage(directory.getAbsolutePath()
                     + "/"
-                    + items.get(0).getName());
+                    + photos.get(0).getName());
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -156,12 +191,12 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
 
     @Override
     public void itemClicked(View view, int position) {
-        if (!currentItemPath.equals(takeDirectoryForPhoto().getAbsolutePath()
+        if (!currentItemPath.equals(directory.getAbsolutePath()
                 + "/"
-                + items.get(position).getName())){
-            loadImage(takeDirectoryForPhoto().getAbsolutePath()
+                + photos.get(position).getName())){
+            loadImage(directory.getAbsolutePath()
                     + "/"
-                    + items.get(position).getName());
+                    + photos.get(position).getName());
         }
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -172,12 +207,11 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RESULT_CODE && resultCode == RESULT_OK){
-            if (DEBUG) {
-                Log.d("fgfg", "result");
-            }
+            if(photo != null){
                 addPictureIntoGallery(photo);
                 addItemToItems(photo.getPath());
                 loadImage(photo.getPath());
+            }
         }
     }
 
@@ -189,18 +223,20 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
     }
 
     private void loadPreviews(){
-        for (int i = 0; i < takeDirectoryForPhoto().listFiles().length; i++) {
+        for (int i = 0; i < directory.listFiles().length; i++) {
             downloadComplete.submit(
-                    new ImageDownloadTask(takeDirectoryForPhoto().listFiles()[i].getPath(), i,
+                    new ImageDownloadTask(directory.listFiles()[i].getPath(), i,
                             ImageDownloadTask.SCALE_FACTOR_PREVIEW,
                             ImageDownloadTask.ROTATE_DEGREES));
         }
     }
 
-    private void initItems(){
-        if (takeDirectoryForPhoto().listFiles() != null){
-            for (int i = 0; i < takeDirectoryForPhoto().listFiles().length; i++) {
-                items.add(new ItemModel(takeDirectoryForPhoto().listFiles()[i].getName()));
+    private void initArrayPhotosAndDirectory(){
+        directory = takeDirectoryForPhoto();
+        photos = new ArrayList<>();
+        if (directory != null && directory.listFiles() != null){
+            for (int i = 0; i < directory.listFiles().length; i++) {
+                photos.add(new ItemModel(directory.listFiles()[i].getName()));
             }
             loadPreviews();
         }
@@ -213,26 +249,79 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
                         ImageDownloadTask.ROTATE_DEGREES));
     }
 
-    private void settingRecycleView(){
-
-        ItemsAdapter itemsAdapter = new ItemsAdapter(items);
+    private void settingViews(){
+        ItemsAdapter itemsAdapter = new ItemsAdapter(photos, getApplicationContext());
         itemsAdapter.setClickListener(this);
         recyclerView.setAdapter(itemsAdapter);
-
-        recyclerView.setAnimation(new Animation() {
-            @Override
-            protected Animation clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-        });
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
         recyclerView.setHasFixedSize(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),
                 DividerItemDecoration.HORIZONTAL));
         new LinearSnapHelper().attachToRecyclerView(recyclerView);
+        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (timer != null){
+                        timer.cancel();
+                    }
+                    timer = new Timer();
+                    timer.schedule(new OwnTimerTask(), Constants.DELAY);
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
+
+        progressBar.setVisibility(View.INVISIBLE);
+
+        takePhotoButton.setOnClickListener(v ->
+        {
+            photo = takeImageFile();
+            //currentItemPath =  photo.getPath();
+            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo)), RESULT_CODE);
+
+        });
+        takePhotoButton.animate().scaleX(0).scaleY(0).setDuration(300).start();
+
+        bottomSheetBehavior = BottomSheetBehavior.from(recyclerViewContainer);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        bottomSheetBehavior.setPeekHeight(recyclerViewContainer.getHeight());
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior
+                .setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                    @Override
+                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                        if (BottomSheetBehavior.STATE_EXPANDED == newState) {
+                            takePhotoButton
+                                    .animate().scaleX(1).scaleY(1)
+                                    .setDuration(300)
+                                    .start();
+                        } else if (BottomSheetBehavior.STATE_HIDDEN == newState) {
+                            takePhotoButton
+                                    .animate().scaleX(0).scaleY(0)
+                                    .setDuration(300)
+                                    .start();
+                        }
+                    }
+
+                    @Override
+                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                    }
+                });
     }
 
     private File takeDirectoryForPhoto(){
@@ -249,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
     }
 
     private File takeImageFile(){
-        return new File(takeDirectoryForPhoto().getAbsolutePath()
+        return new File(directory.getAbsolutePath()
                 + "/"
                 + Constants.FILE_NAME_PREFIX
                 + new SimpleDateFormat(Constants.NAME_TEMPLATE, Locale.US).format(new Date())
@@ -261,30 +350,18 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
         runOnUiThread(() -> {
 
             if (newItem.getIndex() == ImageDownloadTask.IMAGE_VIEW_INDEX){
-                if (DEBUG) {
-                    Log.d("fgfg", "set image: index " + newItem.getIndex() + "path: " + newItem.getPath());
-                }
                 imageView.setImageBitmap(newItem.getImage());
                 currentItemPath = newItem.getPath();
                 progressBar.setVisibility(View.INVISIBLE);
             } else {
-
-                if (DEBUG) {
-                    Log.d("fgfg", "+++set else " + newItem.getIndex() + " path: " + newItem.getPath());
-                }
-
                 if (newItem.getIndex() == ImageDownloadTask.NEW_ITEM_INDEX){
-
-                    if (DEBUG) {
-                        Log.d("fgfg", "set: new item " + newItem.getIndex() + "path: " + newItem.getPath());
-                    }
-                    items.add(new ItemModel(photo.getName(), newItem.getImage()));
-                } else if (newItem.getPath().contains(items.get(newItem.getIndex()).getName())){
-                    items.get(newItem.getIndex()).setIcon(newItem.getImage());
+                    photos.add(new ItemModel(photo.getName(), newItem.getImage()));
+                } else if (newItem.getPath().contains(photos.get(newItem.getIndex()).getName())){
+                    photos.get(newItem.getIndex()).setIcon(newItem.getImage());
                 } else {
-                    for (int i = 0; i < items.size(); i++){
-                        if (newItem.getPath().contains(items.get(i).getName())){
-                        items.get(i).setIcon(newItem.getImage());
+                    for (int i = 0; i < photos.size(); i++){
+                        if (newItem.getPath().contains(photos.get(i).getName())){
+                        photos.get(i).setIcon(newItem.getImage());
                         break;
                         }
                     }
@@ -325,5 +402,12 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
             }
         }
 
+    }
+
+    private class OwnTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
     }
 }
