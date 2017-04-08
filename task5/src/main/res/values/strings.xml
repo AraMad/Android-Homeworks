@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Weather</string>
+
+    <string name="menu_change_city_title">Change city</string>
+
+    <string name="default_text">No data</string>
+    <string name="temperature_text">%.1f\u00b0</string>
+
+    <string name="no_internet_text">No Internet</string>
+    <string name="error_text">Sorry, some error</string>
+</resources>
