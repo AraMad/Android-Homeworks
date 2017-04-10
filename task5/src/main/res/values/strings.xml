@@ -1,11 +1,16 @@
 <resources>
     <string name="app_name">Weather</string>
 
-    <string name="menu_change_city_title">Change city</string>
+    <string name="peek_city_title">Peek city</string>
 
     <string name="default_text">No data</string>
-    <string name="temperature_text">%.1f\u00b0</string>
+    <string name="temperature_text">Temperature %.1f\u00b0</string>
 
     <string name="no_internet_text">No Internet</string>
     <string name="error_text">Sorry, some error</string>
+
+    <string name="search_hint_text">Enter city name</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

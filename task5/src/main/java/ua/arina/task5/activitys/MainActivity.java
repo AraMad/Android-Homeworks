@@ -6,12 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,10 +24,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
+import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,11 +48,11 @@ import ua.arina.task5.models.Current;
 import ua.arina.task5.models.Weather;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
-import static ua.arina.task5.settings.Constants.API_KEY;
+import static ua.arina.task5.BuildConfig.DEBUG;
+import static ua.arina.task5.settings.Constants.APIXU_API_KEY;
 import static ua.arina.task5.settings.Constants.BASE_URL;
+import static ua.arina.task5.settings.Constants.CITY_NAME_KEY;
 import static ua.arina.task5.settings.Constants.COLD;
-import static ua.arina.task5.settings.Constants.COLOR_KEY;
-import static ua.arina.task5.settings.Constants.DATE_FORMAT;
 import static ua.arina.task5.settings.Constants.DEFAULT_COLOR;
 import static ua.arina.task5.settings.Constants.FROST;
 import static ua.arina.task5.settings.Constants.HOT;
@@ -57,6 +68,8 @@ import static ua.arina.task5.settings.Constants.ZERO;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private final String TAG = getClass().getSimpleName();
+
+    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     private Retrofit client;
 
@@ -93,12 +106,62 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.change_city_menu_item:
-                startActivity(new Intent(this, ChooseCity.class)
-                .putExtra(COLOR_KEY, constraintLayout.getDrawingCacheBackgroundColor()));
+            case R.id.peek_city:
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                    .setFilter(new AutocompleteFilter.Builder()
+                                            .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                                            .build())
+                                    .build(this);
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException |
+                        GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),
+                            getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                Place place = PlaceAutocomplete.getPlace(this, data);
+
+                if (DEBUG) {
+                    Log.d(TAG, "Place: " + place.getName());
+                }
+
+                if (place.getName().equals("Кировоград")){
+                    takeWeatherData("Kirovograd");
+                } else{
+                    final Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+                    List<Address> addresses = null;
+                    try {
+                        addresses = geocoder.getFromLocation(place.getLatLng().latitude,
+                                place.getLatLng().longitude, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (addresses != null && !addresses.isEmpty()) {
+                        takeWeatherData(addresses.get(0).getLocality());
+
+                        if (DEBUG) {
+                            Log.d(TAG, "Place: " + addresses.get(0).getLocality());
+                        }
+                    }
+                }
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -108,7 +171,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (!isInternetAvailable()) {
             Toast.makeText(this, getString(R.string.no_internet_text), Toast.LENGTH_SHORT).show();
         }else {
-            takeWeatherData();
+            takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
+                    .getString(CITY_NAME_KEY, null));
         }
     }
 
@@ -128,19 +192,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void initScreen(){
         ((TextView) findViewById(R.id.day_info))
-                .setText((new SimpleDateFormat(DATE_FORMAT)) // TODO: write day word
+                .setText((DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                         .format(new Date().getTime()));
+
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        //getDefaultSharedPreferences(getApplicationContext())
-        //      .getString(CITY_NAME_KEY, null);
-        getSupportActionBar().setTitle("Kirovograd");
-
+        // TODO: simplify code
         if (isInternetAvailable()) {
-            takeWeatherData();
-        } else if((new SimpleDateFormat(DATE_FORMAT)) // TODO: simplify code
+            takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
+                    .getString(CITY_NAME_KEY, null));
+        } else if( (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                 .format(new Date().getTime()).equals(getDefaultSharedPreferences(getApplicationContext())
-                .getString(LAST_UPDATE_TIME_KEY, null))){
+                .getString(LAST_UPDATE_TIME_KEY, null)) ){
             setBackgroundAndActionBarColor(Double.valueOf(getDefaultSharedPreferences(getApplicationContext())
                     .getString(TEMPERATURE_KEY, null)));
             setDataOnViews(Double.valueOf(getDefaultSharedPreferences(getApplicationContext())
@@ -148,21 +211,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     getDefaultSharedPreferences(getApplicationContext())
                             .getString(WEATHER_DESCRIPTION_KEY, null),
                     getDefaultSharedPreferences(getApplicationContext())
-                            .getString(PICTURE_PATH_KEY, null));
+                            .getString(PICTURE_PATH_KEY, null),
+                    getDefaultSharedPreferences(getApplicationContext())
+                            .getString(CITY_NAME_KEY, null));
         } else {
             Toast.makeText(this, getString(R.string.no_internet_text), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void writeDataToPreferences(String temperature, String weatherDescription,
-                                        String picturePath){
+                                        String picturePath, String cityName){
         getDefaultSharedPreferences(getApplicationContext())
                 .edit()
-                .putString(LAST_UPDATE_TIME_KEY, (new SimpleDateFormat(DATE_FORMAT))
+                .putString(LAST_UPDATE_TIME_KEY, (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                         .format(new Date().getTime()))
                 .putString(TEMPERATURE_KEY, temperature)
                 .putString(WEATHER_DESCRIPTION_KEY, weatherDescription)
                 .putString(PICTURE_PATH_KEY, picturePath)
+                .putString(CITY_NAME_KEY, cityName)
                 .apply();
     }
 
@@ -173,11 +239,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return !(activeNetwork == null || !activeNetwork.isConnected());
     }
 
-    private void takeWeatherData(){
+    private void takeWeatherData(String cityName){
 
         Call<Weather> call = client
                 .create(WeatherApiInterface.class)
-                .getCurrentWeather(API_KEY, "Kirovograd");
+                .getCurrentWeather(APIXU_API_KEY, cityName);
 
         call.enqueue(new Callback<Weather>() {
 
@@ -187,13 +253,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                     Current currentWeather = response.body().getCurrent();
 
+                    if (currentWeather == null){
+                        Toast.makeText(getApplicationContext(),
+                                getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     setBackgroundAndActionBarColor(currentWeather.getTempC());
                     setDataOnViews(currentWeather.getTempC(),
                             currentWeather.getCondition().getText(),
-                            currentWeather.getCondition().getIcon());
+                            currentWeather.getCondition().getIcon(),
+                            cityName);
                     writeDataToPreferences(Double.toString(currentWeather.getTempC()),
                             currentWeather.getCondition().getText(),
-                            currentWeather.getCondition().getIcon());
+                            currentWeather.getCondition().getIcon(),
+                            cityName);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             getString(R.string.error_text), Toast.LENGTH_SHORT).show();
@@ -237,10 +311,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void setDataOnViews(double temperature, String weatherDescription,
-                                String picturePath){
+                                String picturePath, String cityName){
         this.temperature.setText(String.format(getResources()
                 .getString(R.string.temperature_text), temperature));
         this.weatherDescription.setText(weatherDescription);
+        getSupportActionBar().setTitle(cityName);
         Picasso.with(getApplicationContext())
                 .load("http:" + picturePath) // TODO: replace + with builder or something else
                 .placeholder(R.mipmap.no_image_picture)

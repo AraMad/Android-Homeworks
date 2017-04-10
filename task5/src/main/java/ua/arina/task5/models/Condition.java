@@ -1,4 +1,3 @@
-
 package ua.arina.task5.models;
 
 import com.google.gson.annotations.Expose;

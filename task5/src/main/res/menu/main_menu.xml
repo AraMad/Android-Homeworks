@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <item
-            android:id="@+id/change_city_menu_item"
+            android:id="@+id/peek_city"
 
-            android:orderInCategory="1"
-            android:title="@string/menu_change_city_title"
+            android:icon="@mipmap/change_ity_black"
+            android:title="@string/peek_city_title"
 
-            app:showAsAction="never"/>
+            app:showAsAction="ifRoom"/>
 </menu>
