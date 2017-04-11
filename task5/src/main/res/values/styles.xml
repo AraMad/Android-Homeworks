@@ -9,7 +9,7 @@
         <item name="actionBarTheme">@style/ActionBar</item>
     </style>
 
-    <style name="ActionBar" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+    <style name="ActionBar" parent="@style/ThemeOverlay.AppCompat.ActionBar">
         <item name="android:titleTextStyle">@style/ActionBar.Title</item>
     </style>
 

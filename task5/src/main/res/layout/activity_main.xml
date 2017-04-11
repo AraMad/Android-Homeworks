@@ -92,9 +92,6 @@
             app:layout_constraintTop_toTopOf="@+id/circle_background"
             app:layout_constraintVertical_bias="0.428" />
 
-        <!-- TODO: place on free space more weather information,
-         that will appear after click on weather_status_info text view -->
-
     </android.support.constraint.ConstraintLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

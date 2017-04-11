@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private TextView temperature;
     private TextView weatherDescription;
     private ImageView weatherPicture;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         temperature = (TextView) findViewById(R.id.temperature_info);
         weatherDescription = (TextView) findViewById(R.id.weather_status_info);
         weatherPicture = (ImageView) findViewById(R.id.weather_icon);
+        actionBar = getSupportActionBar();
     }
 
     private void initScreen(){
@@ -198,14 +201,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setOnRefreshListener(this);
 
         // TODO: simplify code
-        if (isInternetAvailable()) {
-            takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
-                    .getString(CITY_NAME_KEY, null));
-        } else if( (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
+        if( (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                 .format(new Date().getTime()).equals(getDefaultSharedPreferences(getApplicationContext())
-                .getString(LAST_UPDATE_TIME_KEY, null)) ){
+                        .getString(LAST_UPDATE_TIME_KEY, null)) ){
             setBackgroundAndActionBarColor(Double.valueOf(getDefaultSharedPreferences(getApplicationContext())
                     .getString(TEMPERATURE_KEY, null)));
+
             setDataOnViews(Double.valueOf(getDefaultSharedPreferences(getApplicationContext())
                             .getString(TEMPERATURE_KEY, null)),
                     getDefaultSharedPreferences(getApplicationContext())
@@ -214,6 +215,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             .getString(PICTURE_PATH_KEY, null),
                     getDefaultSharedPreferences(getApplicationContext())
                             .getString(CITY_NAME_KEY, null));
+        }
+
+        if (isInternetAvailable()) {
+            takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
+                    .getString(CITY_NAME_KEY, null));
         } else {
             Toast.makeText(this, getString(R.string.no_internet_text), Toast.LENGTH_SHORT).show();
         }
@@ -253,21 +259,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                     Current currentWeather = response.body().getCurrent();
 
-                    if (currentWeather == null){
+                    if (currentWeather != null){
+                        try {
+                            writeDataToPreferences(Double.toString(currentWeather.getTempC()),
+                                    currentWeather.getCondition().getText(),
+                                    currentWeather.getCondition().getIcon(),
+                                    cityName);
+                            setBackgroundAndActionBarColor(currentWeather.getTempC());
+                            setDataOnViews(currentWeather.getTempC(),
+                                    currentWeather.getCondition().getText(),
+                                    currentWeather.getCondition().getIcon(),
+                                    cityName);
+                        } catch (NullPointerException e){
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else {
                         Toast.makeText(getApplicationContext(),
                                 getString(R.string.error_text), Toast.LENGTH_SHORT).show();
-                        return;
                     }
-
-                    setBackgroundAndActionBarColor(currentWeather.getTempC());
-                    setDataOnViews(currentWeather.getTempC(),
-                            currentWeather.getCondition().getText(),
-                            currentWeather.getCondition().getIcon(),
-                            cityName);
-                    writeDataToPreferences(Double.toString(currentWeather.getTempC()),
-                            currentWeather.getCondition().getText(),
-                            currentWeather.getCondition().getIcon(),
-                            cityName);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             getString(R.string.error_text), Toast.LENGTH_SHORT).show();
@@ -305,8 +317,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 Color.WHITE, color)
                 .setDuration(1000)
                 .start();
-        getSupportActionBar().setBackgroundDrawable(
-                new ColorDrawable(color));
+        if(actionBar != null){
+            actionBar.setBackgroundDrawable(
+                    new ColorDrawable(color));
+        }
 
     }
 
