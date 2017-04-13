@@ -8,7 +8,6 @@ import android.graphics.Color;
 
 public class Constants {
     public static final String BASE_APIXU_URL = "http://api.apixu.com/v1/";
-    public static final String APIXU_API_KEY = "c9dc0ef125a241ceb2a111749170704";
     public static final String DOWNLOAD_PICTURE_PROTOCOL_NAME = "http:";
 
     public static final String CITY_NAME_KEY = "city_name";

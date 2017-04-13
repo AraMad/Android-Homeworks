@@ -1,0 +1,10 @@
+<resources>
+    <string
+        name="google_places_key"
+        templateMergeStrategy="preserve"
+        translatable="false">AIzaSyDU2NabbV4suo8hkZ2c0Htp_0_aNjttviA</string>
+    <string
+        name="apixu_key"
+        templateMergeStrategy="preserve"
+        translatable="false">c9dc0ef125a241ceb2a111749170704</string>
+</resources>

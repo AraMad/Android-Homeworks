@@ -7,8 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
-    <!-- TODO: paste api key to resources -->
-
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_app_icon"
@@ -19,7 +17,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDU2NabbV4suo8hkZ2c0Htp_0_aNjttviA" />
+            android:value="@string/google_places_key" />
 
         <activity android:name=".activitys.MainActivity">
             <intent-filter>

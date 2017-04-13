@@ -51,7 +51,6 @@ import ua.arina.task5.models.Weather;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static ua.arina.task5.BuildConfig.DEBUG;
-import static ua.arina.task5.settings.Constants.APIXU_API_KEY;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_DURATION;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_PROPERTY_NAME;
 import static ua.arina.task5.settings.Constants.BASE_APIXU_URL;
@@ -149,28 +148,40 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     Log.d(TAG, "Place: " + place.getName());
                 }
 
-                if (place.getName().equals("Кировоград")){
-                    takeWeatherData("Kirovograd");
-                } else{
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
-                    List<Address> addresses = null;
-                    try {
-                        addresses = geocoder.getFromLocation(place.getLatLng().latitude,
-                                place.getLatLng().longitude, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (addresses != null && !addresses.isEmpty()) {
-                        takeWeatherData(addresses.get(0).getLocality());
+                if (Locale.getDefault().equals(Locale.ENGLISH)
+                        || Locale.getDefault().equals(Locale.CANADA) ||
+                        Locale.getDefault().equals(Locale.UK)
+                        || Locale.getDefault().equals(Locale.US)){
 
-                        if (DEBUG) {
-                            Log.d(TAG, "Place: " + addresses.get(0).getLocality());
+                    if (DEBUG) {
+                        Log.d(TAG, "Locale");
+                    }
+
+                    if (place.getName().equals("Kropyvnytskyi")){
+                        takeWeatherData("Kirovograd");
+                    } else{
+                        takeWeatherData(place.getName().toString());
+                    }
+
+                } else{
+
+                    if (place.getName().equals("Кировоград")){
+                        takeWeatherData("Kirovograd");
+                    } else{
+                        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+                        List<Address> addresses = null;
+                        try {
+                            addresses = geocoder.getFromLocation(place.getLatLng().latitude,
+                                    place.getLatLng().longitude, 1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (addresses != null && !addresses.isEmpty()) {
+                            takeWeatherData(addresses.get(0).getLocality());
                         }
                     }
-                }
 
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                showToastMessage(getString(R.string.error_text));
+                }
             }
         }
     }
@@ -256,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         Call<Weather> call = client
                 .create(WeatherApiInterface.class)
-                .getCurrentWeather(APIXU_API_KEY, cityName);
+                .getCurrentWeather(getString(R.string.apixu_key), cityName);
 
         call.enqueue(new Callback<Weather>() {
 
