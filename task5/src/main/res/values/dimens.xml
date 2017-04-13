@@ -1,0 +1,23 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="image_view_margin">8dp</dimen>
+    <dimen name="weather_image_width">80dp</dimen>
+    <dimen name="weather_image_height">80dp</dimen>
+    <dimen name="weather_image_background_width">100dp</dimen>
+    <dimen name="weather_image_background_height">100dp</dimen>
+
+    <dimen name="day_info_margin_port">8dp</dimen>
+    <dimen name="day_info_margintop_port">80dp</dimen>
+    <dimen name="temperature_info_marginbottom_port">12dp</dimen>
+    <dimen name="weather_status_info_margin_bottom_port">200dp</dimen>
+
+    <dimen name="day_info_margin_land">8dp</dimen>
+    <dimen name="day_info_margintop_land">27dp</dimen>
+    <dimen name="temperature_info_marginbottom_land">16dp</dimen>
+    <dimen name="weather_status_info_margin_bottom_land">48dp</dimen>
+
+    <dimen name="toast_radius">10dp</dimen>
+</resources>

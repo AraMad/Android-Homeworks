@@ -19,11 +19,11 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="27dp"
+            android:layout_marginLeft="@dimen/day_info_margin_land"
+            android:layout_marginRight="@dimen/day_info_margin_land"
+            android:layout_marginTop="@dimen/day_info_margintop_land"
             android:text="@string/default_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textColor="@color/textColor"
             android:textSize="30sp"
 
             app:layout_constraintLeft_toLeftOf="parent"
@@ -35,9 +35,9 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/temperature_info_marginbottom_land"
             android:text="@string/default_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textColor="@color/textColor"
             android:textSize="24sp"
 
             app:layout_constraintBottom_toTopOf="@+id/weather_status_info"
@@ -49,9 +49,9 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="48dp"
+            android:layout_marginBottom="@dimen/weather_status_info_margin_bottom_land"
             android:text="@string/default_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textColor="@color/textColor"
             android:textSize="24sp"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -61,40 +61,39 @@
         <ImageView
             android:id="@+id/circle_background"
 
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_width="@dimen/weather_image_background_width"
+            android:layout_height="@dimen/weather_image_background_height"
+            android:layout_marginTop="@dimen/image_view_margin"
+            android:layout_marginBottom="@dimen/image_view_margin"
+            android:layout_marginLeft="@dimen/image_view_margin"
+            android:layout_marginRight="@dimen/image_view_margin"
 
-            app:srcCompat="@mipmap/circle"
+            app:srcCompat="@drawable/circle"
             app:layout_constraintTop_toBottomOf="@+id/day_info"
             app:layout_constraintBottom_toTopOf="@+id/temperature_info"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintVertical_bias="0.461" />
+            app:layout_constraintVertical_bias="0.461"
+
+            tools:ignore="contentDescription"/>
 
         <ImageView
             android:id="@+id/weather_icon"
 
-            android:layout_width="84dp"
-            android:layout_height="77dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="@dimen/weather_image_width"
+            android:layout_height="@dimen/weather_image_height"
+            android:layout_marginBottom="@dimen/image_view_margin"
+            android:layout_marginLeft="@dimen/image_view_margin"
+            android:layout_marginRight="@dimen/image_view_margin"
+            android:layout_marginTop="@dimen/image_view_margin"
+            android:contentDescription="@string/weather_image_content_description"
 
-            app:srcCompat="@mipmap/no_image_picture"
+            app:srcCompat="@drawable/no_image_picture"
             app:layout_constraintBottom_toBottomOf="@+id/circle_background"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="@+id/circle_background"
             app:layout_constraintRight_toRightOf="@+id/circle_background"
             app:layout_constraintTop_toTopOf="@+id/circle_background"
-            app:layout_constraintVertical_bias="0.428" />
-
-        <!-- TODO: place on free space more weather information,
-         that will appear after click on weather_status_info text view -->
+            app:layout_constraintVertical_bias="1.0" />
 
     </android.support.constraint.ConstraintLayout>
 

@@ -6,7 +6,7 @@
         <item
             android:id="@+id/peek_city"
 
-            android:icon="@mipmap/change_ity_black"
+            android:icon="@drawable/change_city_black"
             android:title="@string/peek_city_title"
 
             app:showAsAction="ifRoom"/>

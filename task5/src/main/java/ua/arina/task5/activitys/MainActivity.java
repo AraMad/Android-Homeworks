@@ -30,6 +30,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.muddzdev.styleabletoastlibrary.StyleableToast;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -51,26 +52,34 @@ import ua.arina.task5.models.Weather;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static ua.arina.task5.BuildConfig.DEBUG;
 import static ua.arina.task5.settings.Constants.APIXU_API_KEY;
-import static ua.arina.task5.settings.Constants.BASE_URL;
+import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_DURATION;
+import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_PROPERTY_NAME;
+import static ua.arina.task5.settings.Constants.BASE_APIXU_URL;
 import static ua.arina.task5.settings.Constants.CITY_NAME_KEY;
-import static ua.arina.task5.settings.Constants.COLD;
+import static ua.arina.task5.settings.Constants.COLD_COLOR;
 import static ua.arina.task5.settings.Constants.DEFAULT_COLOR;
 import static ua.arina.task5.settings.Constants.FROST;
+import static ua.arina.task5.settings.Constants.FROST_COLOR;
 import static ua.arina.task5.settings.Constants.HOT;
+import static ua.arina.task5.settings.Constants.HOT_COLOR;
 import static ua.arina.task5.settings.Constants.LAST_UPDATE_TIME_KEY;
 import static ua.arina.task5.settings.Constants.PICTURE_PATH_KEY;
+import static ua.arina.task5.settings.Constants.DOWNLOAD_PICTURE_PROTOCOL_NAME;
 import static ua.arina.task5.settings.Constants.TEMPERATURE_KEY;
-import static ua.arina.task5.settings.Constants.WARM;
-import static ua.arina.task5.settings.Constants.WEATHER_DESCRIPTION_KEY;
 import static ua.arina.task5.settings.Constants.VERY_COLD;
-import static ua.arina.task5.settings.Constants.VERY_WARM;
+import static ua.arina.task5.settings.Constants.WARM;
+import static ua.arina.task5.settings.Constants.WARM_COLOR;
+import static ua.arina.task5.settings.Constants.WEATHER_DESCRIPTION_KEY;
+import static ua.arina.task5.settings.Constants.VERY_COLD_COLOR;
+import static ua.arina.task5.settings.Constants.VERY_WARM_COLOR;
 import static ua.arina.task5.settings.Constants.ZERO;
+import static ua.arina.task5.settings.Constants.ZERO_COLOR;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private final String TAG = getClass().getSimpleName();
 
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     private Retrofit client;
 
@@ -91,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         findViews();
 
         client = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_APIXU_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -143,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 if (place.getName().equals("Кировоград")){
                     takeWeatherData("Kirovograd");
                 } else{
-                    final Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
                     List<Address> addresses = null;
                     try {
                         addresses = geocoder.getFromLocation(place.getLatLng().latitude,
@@ -161,8 +170,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                showToastMessage(getString(R.string.error_text));
             }
         }
     }
@@ -171,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(false);
         if (!isInternetAvailable()) {
-            Toast.makeText(this, getString(R.string.no_internet_text), Toast.LENGTH_SHORT).show();
+            showToastMessage(getString(R.string.no_internet_text));
         }else {
             takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
                     .getString(CITY_NAME_KEY, null));
@@ -200,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        // TODO: simplify code
         if( (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                 .format(new Date().getTime()).equals(getDefaultSharedPreferences(getApplicationContext())
                         .getString(LAST_UPDATE_TIME_KEY, null)) ){
@@ -221,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
                     .getString(CITY_NAME_KEY, null));
         } else {
-            Toast.makeText(this, getString(R.string.no_internet_text), Toast.LENGTH_SHORT).show();
+            showToastMessage(getString(R.string.no_internet_text));
         }
     }
 
@@ -259,63 +266,63 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                     Current currentWeather = response.body().getCurrent();
 
-                    if (currentWeather != null){
-                        try {
-                            writeDataToPreferences(Double.toString(currentWeather.getTempC()),
-                                    currentWeather.getCondition().getText(),
-                                    currentWeather.getCondition().getIcon(),
-                                    cityName);
-                            setBackgroundAndActionBarColor(currentWeather.getTempC());
-                            setDataOnViews(currentWeather.getTempC(),
-                                    currentWeather.getCondition().getText(),
-                                    currentWeather.getCondition().getIcon(),
-                                    cityName);
-                        } catch (NullPointerException e){
-                            e.printStackTrace();
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.error_text), Toast.LENGTH_SHORT).show();
-                        }
-
-                    } else {
-                        Toast.makeText(getApplicationContext(),
-                                getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                    try {
+                        writeDataToPreferences(Double.toString(currentWeather.getTempC()),
+                                currentWeather.getCondition().getText(),
+                                currentWeather.getCondition().getIcon(),
+                                response.body().getLocation().getName());
+                        setBackgroundAndActionBarColor(currentWeather.getTempC());
+                        setDataOnViews(currentWeather.getTempC(),
+                                currentWeather.getCondition().getText(),
+                                currentWeather.getCondition().getIcon(),
+                                response.body().getLocation().getName());
+                    } catch (NullPointerException e){
+                        e.printStackTrace();
+                        showToastMessage(getString(R.string.no_data_text));
                     }
+
                 } else {
-                    Toast.makeText(getApplicationContext(),
-                            getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                    showToastMessage(getString(R.string.error_text));
                 }
             }
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.error_text), Toast.LENGTH_SHORT).show();
+                showToastMessage(getString(R.string.error_text));
             }
         });
+    }
+
+    private void showToastMessage(String message){
+        StyleableToast.makeText(getApplicationContext(),
+                message,
+                Toast.LENGTH_SHORT,
+                R.style.StyledToast)
+                .show();
     }
 
     private void setBackgroundAndActionBarColor(double temperature){
         int color = DEFAULT_COLOR;
 
-        if (temperature == 0){
-            color = ZERO;
-        } else if (temperature > 0 && temperature < 10.0){
-            color = WARM;
-        } else if(temperature >= 10.0 && temperature < 20.0){
-            color = VERY_WARM;
-        } else if(temperature >= 20.0){
-            color = HOT;
-        } else if(temperature < 0 && temperature > -10.0){
-            color = COLD;
-        } else if(temperature <= -10.0 && temperature > -20.0){
-            color = VERY_COLD;
-        } else if(temperature <= -20.0){
-            color = FROST;
+        if (temperature == ZERO){
+            color = ZERO_COLOR;
+        } else if (temperature > ZERO && temperature < WARM){
+            color = WARM_COLOR;
+        } else if(temperature >= WARM && temperature < HOT){
+            color = VERY_WARM_COLOR;
+        } else if(temperature >= HOT){
+            color = HOT_COLOR;
+        } else if(temperature < ZERO && temperature > VERY_COLD){
+            color = COLD_COLOR;
+        } else if(temperature <= VERY_COLD && temperature > FROST){
+            color = VERY_COLD_COLOR;
+        } else if(temperature <= FROST){
+            color = FROST_COLOR;
         }
 
-        ObjectAnimator.ofObject(constraintLayout, "backgroundColor", new ArgbEvaluator(),
-                Color.WHITE, color)
-                .setDuration(1000)
+        ObjectAnimator.ofObject(constraintLayout, BACKGROUND_ANIMATION_PROPERTY_NAME,
+                new ArgbEvaluator(), Color.WHITE, color)
+                .setDuration(BACKGROUND_ANIMATION_DURATION)
                 .start();
         if(actionBar != null){
             actionBar.setBackgroundDrawable(
@@ -329,11 +336,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         this.temperature.setText(String.format(getResources()
                 .getString(R.string.temperature_text), temperature));
         this.weatherDescription.setText(weatherDescription);
-        getSupportActionBar().setTitle(cityName);
+        if(actionBar != null){
+            actionBar.setTitle(cityName);
+        }
         Picasso.with(getApplicationContext())
-                .load("http:" + picturePath) // TODO: replace + with builder or something else
-                .placeholder(R.mipmap.no_image_picture)
-                .error(R.mipmap.no_image_picture)
+                .load((new StringBuilder(DOWNLOAD_PICTURE_PROTOCOL_NAME).append(picturePath)).toString())
+                .placeholder(R.drawable.no_image_picture)
+                .error(R.drawable.no_image_picture)
                 .into(weatherPicture);
     }
 }
