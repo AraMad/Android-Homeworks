@@ -39,12 +39,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import ua.arina.task5.DaggerAplication;
 import ua.arina.task5.R;
+import ua.arina.task5.interfaces.AppComponent;
 import ua.arina.task5.interfaces.WeatherApiInterface;
 import ua.arina.task5.models.Current;
 import ua.arina.task5.models.Weather;
@@ -53,7 +56,6 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static ua.arina.task5.BuildConfig.DEBUG;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_DURATION;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_PROPERTY_NAME;
-import static ua.arina.task5.settings.Constants.BASE_APIXU_URL;
 import static ua.arina.task5.settings.Constants.CITY_NAME_KEY;
 import static ua.arina.task5.settings.Constants.COLD_COLOR;
 import static ua.arina.task5.settings.Constants.DEFAULT_COLOR;
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
-    private Retrofit client;
+    @Inject Retrofit client;
 
     private ConstraintLayout constraintLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -96,20 +98,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setFullscreenState();
         setContentView(R.layout.activity_main);
 
+        getAppComponent().inject(this);
+
         findViews();
-
-        client = new Retrofit.Builder()
-                .baseUrl(BASE_APIXU_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
         initScreen();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
@@ -355,5 +352,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 .placeholder(R.drawable.no_image_picture)
                 .error(R.drawable.no_image_picture)
                 .into(weatherPicture);
+    }
+
+    AppComponent getAppComponent() {
+        return ((DaggerAplication)getApplication()).getAppComponent();
     }
 }
