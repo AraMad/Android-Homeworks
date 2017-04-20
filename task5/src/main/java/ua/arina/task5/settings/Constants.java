@@ -33,4 +33,6 @@ public class Constants {
     public static final double VERY_COLD = -10.0;
     public static final double HOT = 20.0;
     public static final double WARM = 10.0;
+
+    public static final boolean IS_NAME_CHANGES_NEEDED = true;
 }

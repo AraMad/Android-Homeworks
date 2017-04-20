@@ -4,6 +4,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import ua.arina.task5.activitys.MainActivity;
+import ua.arina.task5.daggermoduls.PreferencesModule;
 import ua.arina.task5.daggermoduls.RetrofitModule;
 
 /**
@@ -11,7 +12,7 @@ import ua.arina.task5.daggermoduls.RetrofitModule;
  */
 
 @Singleton
-@Component(modules = {RetrofitModule.class})
+@Component(modules = {RetrofitModule.class, PreferencesModule.class})
 public interface AppComponent {
     void inject(MainActivity activity);
 }

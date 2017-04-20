@@ -2,6 +2,7 @@ package ua.arina.task5;
 
 import android.app.Application;
 
+import ua.arina.task5.daggermoduls.PreferencesModule;
 import ua.arina.task5.interfaces.AppComponent;
 import ua.arina.task5.interfaces.DaggerAppComponent;
 import ua.arina.task5.daggermoduls.RetrofitModule;
@@ -21,6 +22,7 @@ public class DaggerAplication extends Application{
                 DaggerAppComponent
                         .builder()
                         .retrofitModule(new RetrofitModule())
+                        .preferencesModule(new PreferencesModule(getApplicationContext()))
                         .build();
     }
 
