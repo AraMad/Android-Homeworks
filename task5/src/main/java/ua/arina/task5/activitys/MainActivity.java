@@ -38,6 +38,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -82,11 +84,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Inject Retrofit client;
     @Inject SharedPreferences preferences;
 
-    private ConstraintLayout constraintLayout;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView temperature;
-    private TextView weatherDescription;
-    private ImageView weatherPicture;
+    @BindView(R.id.main_layout) ConstraintLayout constraintLayout;
+    @BindView(R.id.refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.temperature_info) TextView temperature;
+    @BindView(R.id.weather_status_info) TextView weatherDescription;
+    @BindView(R.id.weather_icon) ImageView weatherPicture;
+
     private ActionBar actionBar;
 
     @Override
@@ -96,8 +99,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         getAppComponent().inject(this);
+        ButterKnife.bind(this);
 
-        findViews();
+        actionBar = getSupportActionBar();
         initScreen();
     }
 
@@ -140,37 +144,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    private String getPlaceName(Place place){
-
-        if(IS_NAME_CHANGES_NEEDED) {
-            if (place.getName().equals("Kropyvnytskyi") || place.getName().equals("Кировоград")) {
-                return  "Kirovograd";
-            }
-        }
-
-        if (Locale.getDefault().equals(Locale.ENGLISH)
-                    || Locale.getDefault().equals(Locale.CANADA) ||
-                    Locale.getDefault().equals(Locale.UK)
-                    || Locale.getDefault().equals(Locale.US)){
-
-                return place.getName().toString();
-        } else{
-                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
-                List<Address> addresses = null;
-                try {
-                    addresses = geocoder.getFromLocation(place.getLatLng().latitude,
-                            place.getLatLng().longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (addresses != null && !addresses.isEmpty()) {
-                    return addresses.get(0).getLocality();
-                }
-        }
-
-        return null;
-    }
-
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(false);
@@ -180,15 +153,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
                     .getString(CITY_NAME_KEY, null));
         }
-    }
-
-    private void findViews(){
-        constraintLayout = (ConstraintLayout) findViewById(R.id.main_layout);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
-        temperature = (TextView) findViewById(R.id.temperature_info);
-        weatherDescription = (TextView) findViewById(R.id.weather_status_info);
-        weatherPicture = (ImageView) findViewById(R.id.weather_icon);
-        actionBar = getSupportActionBar();
     }
 
     private void initScreen(){
@@ -246,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         if(cityName == null){
             showToastMessage(getString(R.string.error_text));
+            return;
         }
 
         Call<Weather> call = client
@@ -338,6 +303,37 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 .placeholder(R.drawable.no_image_picture)
                 .error(R.drawable.no_image_picture)
                 .into(weatherPicture);
+    }
+
+    private String getPlaceName(Place place){
+
+        if(IS_NAME_CHANGES_NEEDED) {
+            if (place.getName().equals("Kropyvnytskyi") || place.getName().equals("Кировоград")) {
+                return  "Kirovograd";
+            }
+        }
+
+        if (Locale.getDefault().equals(Locale.ENGLISH)
+                || Locale.getDefault().equals(Locale.CANADA) ||
+                Locale.getDefault().equals(Locale.UK)
+                || Locale.getDefault().equals(Locale.US)){
+
+            return place.getName().toString();
+        } else{
+            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocation(place.getLatLng().latitude,
+                        place.getLatLng().longitude, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (addresses != null && !addresses.isEmpty()) {
+                return addresses.get(0).getLocality();
+            }
+        }
+
+        return null;
     }
 
     AppComponent getAppComponent() {
