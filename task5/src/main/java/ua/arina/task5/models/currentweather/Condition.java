@@ -1,4 +1,4 @@
-package ua.arina.task5.models;
+package ua.arina.task5.models.currentweather;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

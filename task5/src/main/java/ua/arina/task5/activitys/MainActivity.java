@@ -27,11 +27,11 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.muddzdev.styleabletoastlibrary.StyleableToast;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -44,14 +44,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import ua.arina.task5.DaggerAplication;
+import ua.arina.task5.WeatherApplication;
 import ua.arina.task5.R;
 import ua.arina.task5.interfaces.AppComponent;
 import ua.arina.task5.interfaces.WeatherApiInterface;
-import ua.arina.task5.models.Current;
-import ua.arina.task5.models.Weather;
+import ua.arina.task5.models.currentweather.Current;
+import ua.arina.task5.models.currentweather.Weather;
+import ua.arina.task5.models.WeatherData;
+import ua.arina.task5.utils.MessageDisplayer;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_DURATION;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_PROPERTY_NAME;
 import static ua.arina.task5.settings.Constants.CITY_NAME_KEY;
@@ -75,20 +76,30 @@ import static ua.arina.task5.settings.Constants.VERY_WARM_COLOR;
 import static ua.arina.task5.settings.Constants.ZERO;
 import static ua.arina.task5.settings.Constants.ZERO_COLOR;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
 
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private final String SAVED_STATE = "state";
 
-    @Inject Retrofit client;
-    @Inject SharedPreferences preferences;
+    @Inject
+    Retrofit client;
+    @Inject
+    SharedPreferences preferences;
+    @Inject
+    MessageDisplayer messageDisplayer;
 
-    @BindView(R.id.main_layout) ConstraintLayout constraintLayout;
-    @BindView(R.id.refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.temperature_info) TextView temperature;
-    @BindView(R.id.weather_status_info) TextView weatherDescription;
-    @BindView(R.id.weather_icon) ImageView weatherPicture;
+    @BindView(R.id.main_layout)
+    ConstraintLayout constraintLayout;
+    @BindView(R.id.refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.temperature_info)
+    TextView temperature;
+    @BindView(R.id.weather_status_info)
+    TextView weatherDescription;
+    @BindView(R.id.weather_icon)
+    ImageView weatherPicture;
 
     private ActionBar actionBar;
 
@@ -102,7 +113,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ButterKnife.bind(this);
 
         actionBar = getSupportActionBar();
-        initScreen();
+
+        initScreen(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(SAVED_STATE, true);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -114,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.peek_city:
                 try {
                     Intent intent =
@@ -130,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             getString(R.string.error_text), Toast.LENGTH_SHORT).show();
                 }
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -148,14 +168,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(false);
         if (!isInternetAvailable()) {
-            showToastMessage(getString(R.string.no_internet_text));
+            messageDisplayer
+                    .showToastMessage(getString(R.string.no_internet_text), getApplicationContext());
         }else {
-            takeWeatherData(getDefaultSharedPreferences(getApplicationContext())
+            takeWeatherData(preferences
                     .getString(CITY_NAME_KEY, null));
         }
     }
 
-    private void initScreen(){
+    private void initScreen(Bundle savedInstanceState){
         ((TextView) findViewById(R.id.day_info))
                 .setText((DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                         .format(new Date().getTime()));
@@ -168,34 +189,37 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             setBackgroundAndActionBarColor(Double.valueOf(preferences
                     .getString(TEMPERATURE_KEY, null)));
-            setDataOnViews(Double.valueOf(preferences
-                            .getString(TEMPERATURE_KEY, null)),
+
+            setDataOnViews(new WeatherData(Double.valueOf(preferences
+                    .getString(TEMPERATURE_KEY, null)),
                     preferences
                             .getString(WEATHER_DESCRIPTION_KEY, null),
                     preferences
                             .getString(PICTURE_PATH_KEY, null),
                     preferences
-                            .getString(CITY_NAME_KEY, null));
+                            .getString(CITY_NAME_KEY, null)));
         }
 
-        if (isInternetAvailable()) {
-            takeWeatherData(preferences
-                    .getString(CITY_NAME_KEY, null));
-        } else {
-            showToastMessage(getString(R.string.no_internet_text));
+        if (savedInstanceState != null && !savedInstanceState.getBoolean(SAVED_STATE, false)){
+            if (isInternetAvailable()) {
+                takeWeatherData(preferences
+                        .getString(CITY_NAME_KEY, null));
+            } else {
+                messageDisplayer
+                        .showToastMessage(getString(R.string.no_internet_text), getApplicationContext());
+            }
         }
     }
 
-    private void writeDataToPreferences(String temperature, String weatherDescription,
-                                        String picturePath, String cityName){
+    private void writeDataToPreferences(WeatherData weatherData){
         preferences
                 .edit()
                 .putString(LAST_UPDATE_TIME_KEY, (DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH))
                         .format(new Date().getTime()))
-                .putString(TEMPERATURE_KEY, temperature)
-                .putString(WEATHER_DESCRIPTION_KEY, weatherDescription)
-                .putString(PICTURE_PATH_KEY, picturePath)
-                .putString(CITY_NAME_KEY, cityName)
+                .putString(TEMPERATURE_KEY, Double.toString(weatherData.getTemperature()))
+                .putString(WEATHER_DESCRIPTION_KEY, weatherData.getDescription())
+                .putString(PICTURE_PATH_KEY, weatherData.getIconPath())
+                .putString(CITY_NAME_KEY, weatherData.getCityName())
                 .apply();
     }
 
@@ -209,7 +233,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void takeWeatherData(String cityName){
 
         if(cityName == null){
-            showToastMessage(getString(R.string.error_text));
+            messageDisplayer
+                    .showToastMessage(getString(R.string.no_data_text), getApplicationContext());
             return;
         }
 
@@ -226,38 +251,35 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     Current currentWeather = response.body().getCurrent();
 
                     try {
-                        writeDataToPreferences(Double.toString(currentWeather.getTempC()),
+
+                        WeatherData weatherData = new WeatherData(currentWeather.getTempC(),
                                 currentWeather.getCondition().getText(),
                                 currentWeather.getCondition().getIcon(),
                                 response.body().getLocation().getName());
+
+                        writeDataToPreferences(weatherData);
                         setBackgroundAndActionBarColor(currentWeather.getTempC());
-                        setDataOnViews(currentWeather.getTempC(),
-                                currentWeather.getCondition().getText(),
-                                currentWeather.getCondition().getIcon(),
-                                response.body().getLocation().getName());
+                        setDataOnViews(weatherData);
+
                     } catch (NullPointerException e){
                         e.printStackTrace();
-                        showToastMessage(getString(R.string.no_data_text));
+                        messageDisplayer
+                        .showToastMessage(getString(R.string.no_data_text),
+                                getApplicationContext());
                     }
 
                 } else {
-                    showToastMessage(getString(R.string.error_text));
+                    messageDisplayer
+                            .showToastMessage(getString(R.string.error_text), getApplicationContext());
                 }
             }
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
-                showToastMessage(getString(R.string.error_text));
+                messageDisplayer
+                .showToastMessage(getString(R.string.error_text), getApplicationContext());
             }
         });
-    }
-
-    private void showToastMessage(String message){
-        StyleableToast.makeText(getApplicationContext(),
-                message,
-                Toast.LENGTH_SHORT,
-                R.style.StyledToast)
-                .show();
     }
 
     private void setBackgroundAndActionBarColor(double temperature){
@@ -290,16 +312,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     }
 
-    private void setDataOnViews(double temperature, String weatherDescription,
-                                String picturePath, String cityName){
+    private void setDataOnViews(WeatherData weatherData){
+
         this.temperature.setText(String.format(getResources()
-                .getString(R.string.temperature_text), temperature));
-        this.weatherDescription.setText(weatherDescription);
+                .getString(R.string.temperature_text), weatherData.getTemperature()));
+        this.weatherDescription.setText(weatherData.getDescription());
         if(actionBar != null){
-            actionBar.setTitle(cityName);
+            actionBar.setTitle(weatherData.getCityName());
         }
+
         Picasso.with(getApplicationContext())
-                .load((new StringBuilder(DOWNLOAD_PICTURE_PROTOCOL_NAME).append(picturePath)).toString())
+                .load((new StringBuilder(DOWNLOAD_PICTURE_PROTOCOL_NAME)
+                        .append(weatherData.getIconPath())).toString())
                 .placeholder(R.drawable.no_image_picture)
                 .error(R.drawable.no_image_picture)
                 .into(weatherPicture);
@@ -337,6 +361,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     AppComponent getAppComponent() {
-        return ((DaggerAplication)getApplication()).getAppComponent();
+        return ((WeatherApplication)getApplication()).getAppComponent();
     }
 }
