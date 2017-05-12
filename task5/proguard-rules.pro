@@ -40,4 +40,6 @@
     public <init>(android.content.Context);
 }
 
+-dontwarn java.lang.invoke.*
+-dontwarn **$$Lambda$*
 -dontwarn okio.**

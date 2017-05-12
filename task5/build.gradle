@@ -12,7 +12,7 @@ android {
         versionName "1.0"
 
         jackOptions {
-            enabled true
+            enabled false
         }
     }
 
@@ -24,7 +24,7 @@ android {
     buildTypes {
 
         debug {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
@@ -49,11 +49,14 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.0'
     compile 'com.google.code.gson:gson:2.7'
 
-    compile 'com.google.android.gms:play-services-places:10.2.1'
+    compile 'com.google.android.gms:play-services-places:10.2.4'
 
     annotationProcessor "com.google.dagger:dagger-compiler:2.6"
     compile 'com.google.dagger:dagger:2.6'
 
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     compile 'com.jakewharton:butterknife:8.5.1'
+
+    apply plugin: 'com.android.application'
+    apply plugin: 'me.tatarka.retrolambda'
 }
