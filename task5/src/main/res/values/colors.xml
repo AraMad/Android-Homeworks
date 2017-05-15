@@ -5,4 +5,13 @@
     <color name="colorAccent">#FF4081</color>
     <color name="textColor">#000000</color>
     <color name="backgroundToastAndImageColor">#ffffff</color>
+
+    <color name="frost">#00BFFF</color>
+    <color name="very_cold">#87CEFA</color>
+    <color name="cold">#F0F8FF</color>
+    <color name="zero">#F8F8FF</color>
+    <color name="warm">#F8D700</color>
+    <color name="very_warm">#FFA500</color>
+    <color name="hot">#FF4500</color>
+    <color name="default_color">#0000CD</color>
 </resources>

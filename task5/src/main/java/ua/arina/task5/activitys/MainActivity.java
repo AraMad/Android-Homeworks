@@ -12,6 +12,7 @@ import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +32,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -56,25 +56,16 @@ import ua.arina.task5.utils.MessageDisplayer;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_DURATION;
 import static ua.arina.task5.settings.Constants.BACKGROUND_ANIMATION_PROPERTY_NAME;
 import static ua.arina.task5.settings.Constants.CITY_NAME_KEY;
-import static ua.arina.task5.settings.Constants.COLD_COLOR;
-import static ua.arina.task5.settings.Constants.DEFAULT_COLOR;
 import static ua.arina.task5.settings.Constants.FROST;
-import static ua.arina.task5.settings.Constants.FROST_COLOR;
 import static ua.arina.task5.settings.Constants.HOT;
-import static ua.arina.task5.settings.Constants.HOT_COLOR;
-import static ua.arina.task5.settings.Constants.IS_NAME_CHANGES_NEEDED;
 import static ua.arina.task5.settings.Constants.LAST_UPDATE_TIME_KEY;
 import static ua.arina.task5.settings.Constants.PICTURE_PATH_KEY;
 import static ua.arina.task5.settings.Constants.DOWNLOAD_PICTURE_PROTOCOL_NAME;
 import static ua.arina.task5.settings.Constants.TEMPERATURE_KEY;
 import static ua.arina.task5.settings.Constants.VERY_COLD;
 import static ua.arina.task5.settings.Constants.WARM;
-import static ua.arina.task5.settings.Constants.WARM_COLOR;
 import static ua.arina.task5.settings.Constants.WEATHER_DESCRIPTION_KEY;
-import static ua.arina.task5.settings.Constants.VERY_COLD_COLOR;
-import static ua.arina.task5.settings.Constants.VERY_WARM_COLOR;
 import static ua.arina.task5.settings.Constants.ZERO;
-import static ua.arina.task5.settings.Constants.ZERO_COLOR;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -283,22 +274,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void setBackgroundAndActionBarColor(double temperature){
-        int color = DEFAULT_COLOR;
+        int color = ResourcesCompat.getColor(getResources(), R.color.default_color, null);
 
         if (temperature == ZERO){
-            color = ZERO_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.zero, null);
         } else if (temperature > ZERO && temperature < WARM){
-            color = WARM_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.warm, null);
         } else if(temperature >= WARM && temperature < HOT){
-            color = VERY_WARM_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.very_warm, null);
         } else if(temperature >= HOT){
-            color = HOT_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.hot, null);
         } else if(temperature < ZERO && temperature > VERY_COLD){
-            color = COLD_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.cold, null);
         } else if(temperature <= VERY_COLD && temperature > FROST){
-            color = VERY_COLD_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.very_cold, null);
         } else if(temperature <= FROST){
-            color = FROST_COLOR;
+            color = ResourcesCompat.getColor(getResources(), R.color.frost, null);
         }
 
         ObjectAnimator.ofObject(constraintLayout, BACKGROUND_ANIMATION_PROPERTY_NAME,
@@ -331,19 +322,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private String getPlaceName(Place place){
 
-        if(IS_NAME_CHANGES_NEEDED) {
-            if (place.getName().equals("Kropyvnytskyi") || place.getName().equals("Кировоград")) {
-                return  "Kirovograd";
-            }
-        }
-
         if (Locale.getDefault().equals(Locale.ENGLISH)
-                || Locale.getDefault().equals(Locale.CANADA) ||
-                Locale.getDefault().equals(Locale.UK)
+                || Locale.getDefault().equals(Locale.CANADA)
+                || Locale.getDefault().equals(Locale.UK)
                 || Locale.getDefault().equals(Locale.US)){
 
             return place.getName().toString();
+
         } else{
+
+            if (place.getName().equals("Kropyvnytskyi") || place.getName().equals("Кировоград")) {
+                return  "Kirovograd";
+            }
+
             Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
             List<Address> addresses = null;
             try {
